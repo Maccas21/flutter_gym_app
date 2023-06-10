@@ -22,10 +22,24 @@ class ExerciseTab extends StatefulWidget {
 class _ExerciseTabState extends State<ExerciseTab> {
   TextEditingController searchBarController = TextEditingController();
   List<Exercise> exerciseList = defaultExercises;
+  Map<String, bool> activeFilter = {
+    'All': true,
+    'Arms': false,
+    'Back': false,
+    'Chest': false,
+    'Core': false,
+    'Legs': false,
+  };
 
   @override
   void initState() {
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    searchBarController.dispose();
   }
 
   // Fetch content from json file
@@ -52,61 +66,99 @@ class _ExerciseTabState extends State<ExerciseTab> {
     }
   }
 
-  // Search list of exercises based in search bar
+  // Search list of exercises based on search bar
   void searchExercises(String query) {
-    final searching = defaultExercises.where((exercise) {
+    List<Exercise> filteredMuscle = List.empty();
+
+    // check if muscle category is selected
+    for (var group in activeFilter.keys) {
+      if (activeFilter[group] == true) {
+        // get all exercises based on muscle group
+        filteredMuscle = getExercisesFromMuscleGroup(group, defaultExercises);
+        break;
+      }
+    }
+
+    setState(() {
+      // set current list to filtered exercises
+      exerciseList = getExercisesFromName(query, filteredMuscle);
+    });
+  }
+
+  // Filter exercises based on muscle group
+  void filterExercises(String query) {
+    setActiveFilter(query);
+
+    setState(() {
+      // set list based on search bar
+      exerciseList =
+          getExercisesFromName(searchBarController.text, defaultExercises);
+
+      if (query != 'All') {
+        exerciseList = getExercisesFromMuscleGroup(query, exerciseList);
+      }
+    });
+  }
+
+  // Return list of matching exercises based on name from source list
+  List<Exercise> getExercisesFromName(String query, List<Exercise> source) {
+    return source.where((exercise) {
       final exerciseName = exercise.name.toLowerCase();
       final input = query.toLowerCase();
 
       return exerciseName.contains(input);
     }).toList();
-
-    setState(() {
-      exerciseList = searching;
-    });
   }
 
-  // Filter exercises based on set categories
-  void filterExercises(String query) {
-    if (query == 'All' || query == 'Cardio') {
-      setState(() {
-        exerciseList = defaultExercises;
-      });
-    } else {
-      final searching = defaultExercises.where((exercise) {
-        // check filter group
-        for (var muscle in muscleCategory[query]!) {
-          var exerciseMuscle = exercise.primaryMuscles.first.toLowerCase();
-          var input = muscle.toLowerCase();
+  // Return list of exercises with matching muscle group from source list
+  List<Exercise> getExercisesFromMuscleGroup(
+      String query, List<Exercise> source) {
+    return query == 'All'
+        ? defaultExercises
+        : source.where((exercise) {
+            // check filter group
+            for (var muscle in muscleCategory[query]!) {
+              var exerciseMuscle = exercise.primaryMuscles.first.toLowerCase();
+              var input = muscle.toLowerCase();
 
-          // check if primary muscle
-          if (exerciseMuscle.contains(input)) return true;
+              // check if primary muscle
+              if (exerciseMuscle.contains(input)) return true;
 
-          // check all secondary muscles
-          // for (var secondMuscle in exercise.secondaryMuscles) {
-          //   exerciseMuscle = secondMuscle.toLowerCase();
-          //   if (exerciseMuscle.contains(input)) return true;
-          // }
-        }
+              // check all secondary muscles
+              // for (var secondMuscle in exercise.secondaryMuscles) {
+              //   exerciseMuscle = secondMuscle.toLowerCase();
+              //   if (exerciseMuscle.contains(input)) return true;
+              // }
+            }
 
-        return false;
-      }).toList();
-
-      setState(() {
-        exerciseList = searching;
-      });
-    }
+            return false;
+          }).toList();
   }
 
+  // Clear search bar, reset list and muscle category
   void clearSearchBar() {
     // clear textfield
     searchBarController.clear();
 
     // show all exercises
-    filterExercises('All');
+    exerciseList = defaultExercises;
+
+    // reset active filters
+    setActiveFilter('All');
 
     // close keyboard
     //FocusManager.instance.primaryFocus?.unfocus();
+  }
+
+  // Set which filter is active
+  void setActiveFilter(String query) {
+    activeFilter.forEach((key, value) {
+      activeFilter[key] = false;
+    });
+
+    setState(() {
+      activeFilter[query] = true;
+    });
   }
 
   @override
@@ -144,9 +196,14 @@ class _ExerciseTabState extends State<ExerciseTab> {
                   itemCount: muscleCategory.length,
                   itemBuilder: (context, index) {
                     return TextButton(
-                      onPressed: () {
-                        filterExercises(muscleCategory.keys.elementAt(index));
-                      },
+                      onPressed:
+                          activeFilter[muscleCategory.keys.elementAt(index)] ==
+                                  true
+                              ? null
+                              : () {
+                                  filterExercises(
+                                      muscleCategory.keys.elementAt(index));
+                                },
                       child: Text(muscleCategory.keys.elementAt(index)),
                     );
                   },
