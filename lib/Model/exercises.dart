@@ -36,3 +36,35 @@ const List<String> muscleGroups = [
   'traps',
   'triceps'
 ];
+
+const muscleCategory = {
+  'All': [],
+  'Arms': [
+    'biceps',
+    'forearms',
+    'triceps',
+  ],
+  'Back': [
+    'lats',
+    'lower back',
+    'middle back',
+    'neck',
+    'shoulders',
+    'traps',
+  ],
+  //'Cardio': [],
+  'Chest': [
+    'chest',
+  ],
+  'Core': [
+    'abdominals',
+    'abductors',
+    'adductors',
+  ],
+  'Legs': [
+    'calves',
+    'glutes',
+    'hamstrings',
+    'quadriceps',
+  ],
+};

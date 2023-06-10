@@ -20,7 +20,7 @@ class ExerciseTab extends StatefulWidget {
 }
 
 class _ExerciseTabState extends State<ExerciseTab> {
-  TextEditingController controller = TextEditingController();
+  TextEditingController searchBarController = TextEditingController();
   List<Exercise> exerciseList = defaultExercises;
 
   @override
@@ -28,13 +28,16 @@ class _ExerciseTabState extends State<ExerciseTab> {
     super.initState();
   }
 
-  //fetch content from json file
+  // Fetch content from json file
   Future<void> readJSON() async {
+    // check if list is not empty
     if (defaultExercises.isEmpty) {
+      // load json file
       final String response =
           await rootBundle.loadString('assets/exercises.json');
       final data = await json.decode(response);
 
+      // fill list with json data
       for (var exercise in data['exercises']) {
         defaultExercises.add(Exercise(
           name: exercise['name'],
@@ -47,9 +50,9 @@ class _ExerciseTabState extends State<ExerciseTab> {
         ));
       }
     }
-    //print(defaultExercises.length);
   }
 
+  // Search list of exercises based in search bar
   void searchExercises(String query) {
     final searching = defaultExercises.where((exercise) {
       final exerciseName = exercise.name.toLowerCase();
@@ -63,26 +66,91 @@ class _ExerciseTabState extends State<ExerciseTab> {
     });
   }
 
+  // Filter exercises based on set categories
+  void filterExercises(String query) {
+    if (query == 'All' || query == 'Cardio') {
+      setState(() {
+        exerciseList = defaultExercises;
+      });
+    } else {
+      final searching = defaultExercises.where((exercise) {
+        // check filter group
+        for (var muscle in muscleCategory[query]!) {
+          var exerciseMuscle = exercise.primaryMuscles.first.toLowerCase();
+          var input = muscle.toLowerCase();
+
+          // check if primary muscle
+          if (exerciseMuscle.contains(input)) return true;
+
+          // check all secondary muscles
+          // for (var secondMuscle in exercise.secondaryMuscles) {
+          //   exerciseMuscle = secondMuscle.toLowerCase();
+          //   if (exerciseMuscle.contains(input)) return true;
+          // }
+        }
+
+        return false;
+      }).toList();
+
+      setState(() {
+        exerciseList = searching;
+      });
+    }
+  }
+
+  void clearSearchBar() {
+    // clear textfield
+    searchBarController.clear();
+
+    // show all exercises
+    filterExercises('All');
+
+    // close keyboard
+    //FocusManager.instance.primaryFocus?.unfocus();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.all(16),
+      margin: const EdgeInsets.all(10),
       child: Scaffold(
         body: Center(
           child: Column(
             children: [
               TextField(
-                controller: controller,
+                controller: searchBarController,
                 decoration: InputDecoration(
                   prefixIcon: const Icon(Icons.search),
+                  suffixIcon: IconButton(
+                    splashRadius: 20,
+                    icon: const Icon(Icons.clear),
+                    onPressed: clearSearchBar,
+                  ),
                   hintText: 'Exercises',
+                  contentPadding: const EdgeInsets.symmetric(vertical: 10),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(25),
                     borderSide:
                         BorderSide(color: Theme.of(context).primaryColor),
                   ),
                 ),
                 onChanged: searchExercises,
+              ),
+              Container(
+                margin: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+                height: 35,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: muscleCategory.length,
+                  itemBuilder: (context, index) {
+                    return TextButton(
+                      onPressed: () {
+                        filterExercises(muscleCategory.keys.elementAt(index));
+                      },
+                      child: Text(muscleCategory.keys.elementAt(index)),
+                    );
+                  },
+                ),
               ),
               Expanded(
                 child: FutureBuilder(
@@ -95,11 +163,15 @@ class _ExerciseTabState extends State<ExerciseTab> {
                             itemCount: exerciseList.length,
                             itemBuilder: (context, index) {
                               return ListTile(
-                                title: Text(exerciseList[index].name),
-                                subtitle: Text(exerciseList[index]
-                                    .primaryMuscles
-                                    .first
-                                    .toTitleCase()),
+                                title: Text(
+                                  exerciseList[index].name,
+                                ),
+                                subtitle: Text(
+                                  exerciseList[index]
+                                      .primaryMuscles
+                                      .first
+                                      .toTitleCase(),
+                                ),
                               );
                             }),
                       );
