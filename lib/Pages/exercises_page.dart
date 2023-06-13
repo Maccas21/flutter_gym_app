@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gym_app/Pages/exercises_tab.dart';
+import 'package:flutter_gym_app/Pages/exercise_list_page.dart';
 import 'package:flutter_gym_app/Pages/graph_tab.dart';
 import 'package:flutter_gym_app/Pages/history_tab.dart';
 
@@ -13,7 +13,7 @@ class ExercisesPage extends StatefulWidget {
 class _ExercisesPageState extends State<ExercisesPage> {
   int currentPage = 0;
   List<Widget> exercisePages = const [
-    ExerciseTab(),
+    ExerciseListPage(),
     GraphTab(),
     HistoryTab(),
   ];
