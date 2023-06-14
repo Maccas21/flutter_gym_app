@@ -31,6 +31,7 @@ class _ExerciseListPageState extends State<ExerciseListPage> {
     'All': true,
     'Arms': false,
     'Back': false,
+    'Cardio': false,
     'Chest': false,
     'Core': false,
     'Legs': false,
@@ -61,6 +62,7 @@ class _ExerciseListPageState extends State<ExerciseListPage> {
         defaultExercises.add(Exercise(
           name: exercise['name'],
           force: exercise['force'] ?? '',
+          category: exercise['category'],
           primaryMuscles: List<String>.from(exercise['primaryMuscles']),
           secondaryMuscles:
               List<String>.from(exercise['secondaryMuscles'] ?? []),
@@ -121,6 +123,11 @@ class _ExerciseListPageState extends State<ExerciseListPage> {
     return query == 'All'
         ? defaultExercises
         : source.where((exercise) {
+            // check for cardio group
+            if (query == 'Cardio' &&
+                exercise.category.toLowerCase() == 'cardio') {
+              return true;
+            }
             // check filter group
             for (var muscle in muscleCategory[query]!) {
               var exerciseMuscle = exercise.primaryMuscles.first.toLowerCase();
@@ -168,88 +175,94 @@ class _ExerciseListPageState extends State<ExerciseListPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.all(10),
-      child: Scaffold(
-        body: Center(
-          child: Column(
-            children: [
-              TextField(
-                controller: searchBarController,
-                decoration: InputDecoration(
-                  prefixIcon: const Icon(Icons.search),
-                  suffixIcon: IconButton(
-                    splashRadius: 20,
-                    icon: const Icon(Icons.clear),
-                    onPressed: clearSearchBar,
-                  ),
-                  hintText: 'Exercises',
-                  contentPadding: const EdgeInsets.symmetric(vertical: 10),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(25),
-                    borderSide:
-                        BorderSide(color: Theme.of(context).primaryColor),
-                  ),
-                ),
-                onChanged: searchExercises,
-              ),
-              Container(
-                margin: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                height: 35,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: muscleCategory.length,
-                  itemBuilder: (context, index) {
-                    return TextButton(
-                      onPressed:
-                          activeFilter[muscleCategory.keys.elementAt(index)] ==
-                                  true
-                              ? null
-                              : () {
-                                  filterExercises(
-                                      muscleCategory.keys.elementAt(index));
-                                },
-                      child: Text(muscleCategory.keys.elementAt(index)),
-                    );
-                  },
+    return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {},
+        child: const Icon(Icons.add),
+      ),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+            child: TextField(
+              controller: searchBarController,
+              decoration: InputDecoration(
+                prefixIcon: const Icon(Icons.search),
+                suffixIcon: searchBarController.text == ''
+                    ? null
+                    : IconButton(
+                        splashRadius: 20,
+                        icon: const Icon(Icons.clear),
+                        onPressed: clearSearchBar,
+                      ),
+                hintText: 'Search Exercises',
+                contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(25),
+                  borderSide: BorderSide(color: Theme.of(context).primaryColor),
                 ),
               ),
-              Expanded(
-                child: FutureBuilder(
-                  future: readJSON(),
-                  builder: (context, snapshot) {
-                    // if it is done loading
-                    if (snapshot.connectionState == ConnectionState.done) {
-                      return Scrollbar(
-                        child: ListView.builder(
-                            itemCount: exerciseList.length,
-                            itemBuilder: (context, index) {
-                              return ListTile(
-                                title: Text(
-                                  exerciseList[index].name,
-                                ),
-                                subtitle: Text(
-                                  exerciseList[index]
-                                      .primaryMuscles
-                                      .first
-                                      .toTitleCase(),
-                                ),
-                              );
-                            }),
-                      );
-                    }
-                    // if it is still loading
-                    else {
-                      return const Center(
-                        child: CircularProgressIndicator(),
-                      );
-                    }
-                  },
-                ),
-              ),
-            ],
+              onChanged: searchExercises,
+            ),
           ),
-        ),
+          SizedBox(
+            height: 35,
+            child: ListView.builder(
+              shrinkWrap: true,
+              scrollDirection: Axis.horizontal,
+              itemCount: muscleCategory.length,
+              itemBuilder: (context, index) {
+                return TextButton(
+                  onPressed: activeFilter.values.elementAt(index) == true
+                      ? null
+                      : () {
+                          filterExercises(muscleCategory.keys.elementAt(index));
+                        },
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.only(left: 12, right: 12),
+                    minimumSize: Size.zero,
+                  ),
+                  child: Text(muscleCategory.keys.elementAt(index)),
+                );
+              },
+            ),
+          ),
+          Expanded(
+            child: FutureBuilder(
+              future: readJSON(),
+              builder: (context, snapshot) {
+                // if it is done loading
+                if (snapshot.connectionState == ConnectionState.done) {
+                  return Scrollbar(
+                    child: ListView.builder(
+                      itemCount: exerciseList.length,
+                      itemBuilder: (context, index) {
+                        return ListTile(
+                          title: Text(
+                            exerciseList[index].name,
+                          ),
+                          subtitle: Text(
+                            exerciseList[index]
+                                .primaryMuscles
+                                .first
+                                .toTitleCase(),
+                          ),
+                          visualDensity: const VisualDensity(vertical: -4),
+                        );
+                      },
+                    ),
+                  );
+                }
+                // if it is still loading
+                else {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

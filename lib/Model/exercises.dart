@@ -1,6 +1,7 @@
 class Exercise {
   String name;
   String force;
+  String category;
   bool defaultExercise;
   List<String> primaryMuscles;
   List<String> secondaryMuscles;
@@ -9,6 +10,7 @@ class Exercise {
   Exercise({
     required this.name,
     required this.force,
+    required this.category,
     required this.primaryMuscles,
     required this.secondaryMuscles,
     required this.instructions,
@@ -52,7 +54,7 @@ const muscleCategory = {
     'shoulders',
     'traps',
   ],
-  //'Cardio': [],
+  'Cardio': [],
   'Chest': [
     'chest',
   ],

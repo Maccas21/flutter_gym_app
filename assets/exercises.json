@@ -7491,7 +7491,7 @@
     },
     {
       "name": "Internal Rotation with Band",
-      "force": null,
+      "force": "pull",
       "level": "beginner",
       "mechanic": "isolation",
       "equipment": "bands",
@@ -9511,7 +9511,7 @@
     },
     {
       "name": "Lying Prone Quadriceps",
-      "force": null,
+      "force": "static",
       "level": "expert",
       "mechanic": null,
       "equipment": "body only",
