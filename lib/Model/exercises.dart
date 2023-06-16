@@ -70,3 +70,10 @@ const muscleCategory = {
     'quadriceps',
   ],
 };
+
+class ExerciseSet {
+  double weight = 0;
+  double reps = 0;
+  double distance = 0;
+  Duration duration = const Duration();
+}

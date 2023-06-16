@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gym_app/Pages/add_exercise_page.dart';
 import 'package:flutter_gym_app/Pages/exercise_list_page.dart';
 import 'package:flutter_gym_app/Pages/graph_tab.dart';
 import 'package:flutter_gym_app/Pages/history_tab.dart';
@@ -12,11 +13,26 @@ class ExercisesPage extends StatefulWidget {
 
 class _ExercisesPageState extends State<ExercisesPage> {
   int currentPage = 0;
-  List<Widget> exercisePages = const [
-    ExerciseListPage(),
-    GraphTab(),
-    HistoryTab(),
+  late List<Widget> exercisePages = [
+    ExerciseListPage(
+      listViewOnTap: listViewOnTap,
+    ),
+    const GraphTab(),
+    const HistoryTab(),
   ];
+
+  void listViewOnTap(String name) {
+    //print(name);
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (BuildContext context) {
+          return AddExercisePage(
+            exerciseName: name,
+          );
+        },
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {

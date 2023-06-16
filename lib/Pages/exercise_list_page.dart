@@ -13,12 +13,9 @@ extension StringCasingExtension on String {
 }
 
 class ExerciseListPage extends StatefulWidget {
-  //final Function test;
-  //const ExerciseListPage({super.key, required this.test});
-  // In the main function when calling: ExerciseListPage(test: FUNCTION HERE)
-  // In the state area call function with: widget.test
+  final Function listViewOnTap;
 
-  const ExerciseListPage({super.key});
+  const ExerciseListPage({super.key, required this.listViewOnTap});
 
   @override
   State<ExerciseListPage> createState() => _ExerciseListPageState();
@@ -176,10 +173,10 @@ class _ExerciseListPageState extends State<ExerciseListPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        child: const Icon(Icons.add),
-      ),
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: () {},
+      //   child: const Icon(Icons.add),
+      // ),
       body: Column(
         children: [
           Padding(
@@ -240,14 +237,19 @@ class _ExerciseListPageState extends State<ExerciseListPage> {
                         return ListTile(
                           title: Text(
                             exerciseList[index].name,
+                            style: const TextStyle(fontSize: 15),
                           ),
                           subtitle: Text(
                             exerciseList[index]
                                 .primaryMuscles
                                 .first
                                 .toTitleCase(),
+                            style: const TextStyle(fontSize: 14),
                           ),
                           visualDensity: const VisualDensity(vertical: -4),
+                          onTap: () {
+                            widget.listViewOnTap(exerciseList[index].name);
+                          },
                         );
                       },
                     ),
