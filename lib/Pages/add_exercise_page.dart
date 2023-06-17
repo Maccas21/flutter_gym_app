@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gym_app/Util/distance_time_input.dart';
+import 'package:flutter_gym_app/Util/time_input.dart';
 import 'package:flutter_gym_app/Util/weight_rep_input.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_gym_app/Model/exercises.dart';
@@ -46,6 +48,13 @@ class _AddExercisePageState extends State<AddExercisePage> {
     } else {
       exerciseType['Weights'] = true;
     }
+
+    weightController.text = '20';
+    repsController.text = '8';
+    hoursController.text = '0';
+    minsController.text = '0';
+    secsController.text = '0';
+    distController.text = '0';
   }
 
   @override
@@ -62,24 +71,20 @@ class _AddExercisePageState extends State<AddExercisePage> {
 
   // Return input component based on weight/reps OR distance/time OR time
   Widget inputSelector() {
-    // !!!!!!!!!!!!!!! REMINDER: move out to seperate files !!!!!!!!!!!!!!!
     if (exerciseType['Cardio'] == true) {
-      return const Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          Text('This is a Cardio Exercise'),
-        ],
-      );
+      return DistanceTimeInput(
+          distController: distController,
+          hoursController: hoursController,
+          minsController: minsController,
+          secsController: secsController);
     } else if (exerciseType['Static'] == true) {
-      return const Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          Text('This is a Static Exercise'),
-        ],
+      return TimeInput(
+        hoursController: hoursController,
+        minsController: minsController,
+        secsController: secsController,
+        compact: false,
       );
     } else {
-      weightController.text = '2';
-      repsController.text = '8';
       return WeightRepInput(
         weightController: weightController,
         repsController: repsController,

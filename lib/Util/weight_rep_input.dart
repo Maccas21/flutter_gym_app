@@ -38,6 +38,21 @@ class WeightRepInput extends StatelessWidget {
     }
   }
 
+  void onTap(TextEditingController controller) {
+    if (controller.text == '0') {
+      controller.text = '';
+    }
+  }
+
+  void onOffTap(TextEditingController controller) {
+    if (controller.text == '') {
+      controller.text = '0';
+    }
+
+    // closes keyboard
+    FocusManager.instance.primaryFocus?.unfocus();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -68,7 +83,16 @@ class WeightRepInput extends StatelessWidget {
                     ),
                     textAlign: TextAlign.center,
                     keyboardType: TextInputType.number,
-                    showCursor: false,
+                    showCursor: true,
+                    onSubmitted: (value) {
+                      onOffTap(weightController);
+                    },
+                    onTapOutside: (event) {
+                      onOffTap(weightController);
+                    },
+                    onTap: () {
+                      onTap(weightController);
+                    },
                   ),
                 ),
                 IconButton(
@@ -107,7 +131,16 @@ class WeightRepInput extends StatelessWidget {
                     ),
                     textAlign: TextAlign.center,
                     keyboardType: TextInputType.number,
-                    showCursor: false,
+                    showCursor: true,
+                    onSubmitted: (value) {
+                      onOffTap(repsController);
+                    },
+                    onTapOutside: (event) {
+                      onOffTap(repsController);
+                    },
+                    onTap: () {
+                      onTap(repsController);
+                    },
                   ),
                 ),
                 IconButton(
