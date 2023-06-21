@@ -3,11 +3,11 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class WeightRepInput extends StatelessWidget {
+class WeightSetInput extends StatelessWidget {
   final TextEditingController weightController;
   final TextEditingController repsController;
 
-  const WeightRepInput(
+  const WeightSetInput(
       {super.key,
       required this.weightController,
       required this.repsController});

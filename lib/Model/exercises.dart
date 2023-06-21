@@ -72,8 +72,10 @@ const muscleCategory = {
 };
 
 class ExerciseSet {
-  double weight = 0;
-  double reps = 0;
-  double distance = 0;
-  Duration duration = const Duration();
+  int weight = 0;
+  int reps = 0;
+  int distance = 0;
+  int durationHours = 0;
+  int durationMins = 0;
+  int durationSecs = 0;
 }

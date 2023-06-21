@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gym_app/Util/distance_time_input.dart';
+import 'package:flutter_gym_app/Util/distance_time_tile.dart';
 import 'package:flutter_gym_app/Util/time_input.dart';
+import 'package:flutter_gym_app/Util/time_tile.dart';
 import 'package:flutter_gym_app/Util/weight_rep_input.dart';
+import 'package:flutter_gym_app/Util/weight_rep_tile.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_gym_app/Model/exercises.dart';
 
@@ -17,6 +20,7 @@ class AddExercisePage extends StatefulWidget {
 class _AddExercisePageState extends State<AddExercisePage> {
   late Exercise exercise;
   List<ExerciseSet> listOfSets = [];
+  List<bool> activeTilesList = [];
   Map<String, bool> exerciseType = {
     'Cardio': false,
     'Static': false,
@@ -85,21 +89,145 @@ class _AddExercisePageState extends State<AddExercisePage> {
         compact: false,
       );
     } else {
-      return WeightRepInput(
+      return WeightSetInput(
         weightController: weightController,
         repsController: repsController,
       );
     }
   }
 
+  // Return tile widget based on weight/reps OR distance/time OR time
+  Widget tileSelector(int index) {
+    if (exerciseType['Cardio'] == true) {
+      return DistanceTimeTile(
+        index: index,
+        distance: listOfSets[index].distance,
+        hours: listOfSets[index].durationHours,
+        mins: listOfSets[index].durationMins,
+        secs: listOfSets[index].durationSecs,
+        active: activeTilesList[index],
+      );
+    } else if (exerciseType['Static'] == true) {
+      return TimeTile(
+        index: index,
+        hours: listOfSets[index].durationHours,
+        mins: listOfSets[index].durationMins,
+        secs: listOfSets[index].durationSecs,
+        active: activeTilesList[index],
+      );
+    } else {
+      return WeightRepTile(
+        index: index,
+        weight: listOfSets[index].weight,
+        reps: listOfSets[index].reps,
+        active: activeTilesList[index],
+      );
+    }
+  }
+
   // Add set to list
-  void addSet() {}
+  void addSet() {
+    ExerciseSet newSet = ExerciseSet();
+
+    if (exerciseType['Cardio'] == true) {
+      newSet.distance = int.parse(distController.text);
+      newSet.durationHours = int.parse(hoursController.text);
+      newSet.durationMins = int.parse(minsController.text);
+      newSet.durationSecs = int.parse(secsController.text);
+    } else if (exerciseType['Static'] == true) {
+      newSet.durationHours = int.parse(hoursController.text);
+      newSet.durationMins = int.parse(minsController.text);
+      newSet.durationSecs = int.parse(secsController.text);
+    } else {
+      newSet.weight = int.parse(weightController.text);
+      newSet.reps = int.parse(repsController.text);
+    }
+
+    setState(() {
+      listOfSets.add(newSet);
+      activeTilesList.add(false);
+    });
+  }
 
   // Delete set from list
-  void deleteSet() {}
+  void deleteSet() {
+    setState(() {
+      listOfSets.removeAt(activeTilesList.indexOf(true));
+      activeTilesList.removeAt(activeTilesList.indexOf(true));
+    });
+  }
 
   // Update set
-  void updateSet(int index) {}
+  void updateSet(int index) {
+    ExerciseSet newSet = ExerciseSet();
+
+    if (exerciseType['Cardio'] == true) {
+      newSet.distance = int.parse(distController.text);
+      newSet.durationHours = int.parse(hoursController.text);
+      newSet.durationMins = int.parse(minsController.text);
+      newSet.durationSecs = int.parse(secsController.text);
+    } else if (exerciseType['Static'] == true) {
+      newSet.durationHours = int.parse(hoursController.text);
+      newSet.durationMins = int.parse(minsController.text);
+      newSet.durationSecs = int.parse(secsController.text);
+    } else {
+      newSet.weight = int.parse(weightController.text);
+      newSet.reps = int.parse(repsController.text);
+    }
+
+    setState(() {
+      listOfSets[index] = newSet;
+    });
+  }
+
+  // Update the input to reflect tile and change active tiles list
+  void onTileSelected(int index) {
+    setState(() {
+      if (exerciseType['Cardio'] == true) {
+        distController.text = listOfSets[index].distance.toString();
+        hoursController.text = listOfSets[index].durationHours.toString();
+        minsController.text = listOfSets[index].durationMins.toString();
+        secsController.text = listOfSets[index].durationSecs.toString();
+      } else if (exerciseType['Static'] == true) {
+        hoursController.text = listOfSets[index].durationHours.toString();
+        minsController.text = listOfSets[index].durationMins.toString();
+        secsController.text = listOfSets[index].durationSecs.toString();
+      } else {
+        weightController.text = listOfSets[index].weight.toString();
+        repsController.text = listOfSets[index].reps.toString();
+      }
+
+      updateActiveList(index);
+    });
+  }
+
+  // Set selected tile as active
+  void updateActiveList(int index) {
+    // make current active false
+    if (activeTilesList[index]) {
+      activeTilesList[index] = false;
+    } else {
+      // reset all the bools to false
+      activeTilesList =
+          List.filled(activeTilesList.length, false, growable: true);
+
+      // set only index to true
+      activeTilesList[index] = true;
+    }
+  }
+
+  // Check if tile has been clicked
+  bool hasActive() {
+    for (var element in activeTilesList) {
+      if (element) return true;
+    }
+    return false;
+  }
+
+  // Return the first true selected tile index
+  int getActiveIndex() {
+    return activeTilesList.indexOf(true);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -114,30 +242,44 @@ class _AddExercisePageState extends State<AddExercisePage> {
               DateFormat('EEE dd/MM').format(DateTime.now()),
               style: const TextStyle(fontSize: 20),
             ),
-            // display based on exercise category
+            // Display based on exercise category
             inputSelector(),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                OutlinedButton(
-                  onPressed: () {},
-                  child: const Text('Add'),
+                SizedBox(
+                  width: 80,
+                  child: OutlinedButton(
+                    onPressed: () {
+                      hasActive() ? updateSet(getActiveIndex()) : addSet();
+                    },
+                    child: Text((hasActive() ? 'Update' : 'Add')),
+                  ),
                 ),
-                OutlinedButton(
-                  onPressed: () {},
-                  child: const Text('Delete'),
+                SizedBox(
+                  width: 80,
+                  child: OutlinedButton(
+                    onPressed: hasActive() ? deleteSet : null,
+                    child: const Text('Delete'),
+                  ),
                 ),
               ],
             ),
             // ListView of sets
             Expanded(
-              child: ListView.builder(
-                itemCount: 3,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    title: Text('${index + 1} THIS IS AN EXAMPLE SET'),
-                  );
-                },
+              child: Scrollbar(
+                child: ListView.builder(
+                  itemCount: listOfSets.length,
+                  itemBuilder: (context, index) {
+                    return GestureDetector(
+                      // Display tiles based on exercise category
+                      child: tileSelector(index),
+                      onTap: () {
+                        onTileSelected(index);
+                      },
+                    );
+                  },
+                ),
               ),
             ),
           ],
