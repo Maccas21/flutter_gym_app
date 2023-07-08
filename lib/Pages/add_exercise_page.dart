@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gym_app/Model/database.dart';
 import 'package:flutter_gym_app/Util/distance_time_input.dart';
 import 'package:flutter_gym_app/Util/distance_time_tile.dart';
 import 'package:flutter_gym_app/Util/time_input.dart';
@@ -19,7 +20,8 @@ class AddExercisePage extends StatefulWidget {
 
 class _AddExercisePageState extends State<AddExercisePage> {
   late Exercise exercise;
-  List<ExerciseSet> listOfSets = [];
+  late Database db;
+  ExerciseDayLog dayLog = ExerciseDayLog();
   List<bool> activeTilesList = [];
   Map<String, bool> exerciseType = {
     'Cardio': false,
@@ -44,6 +46,12 @@ class _AddExercisePageState extends State<AddExercisePage> {
 
       return exerciseName.contains(input);
     }).first;
+
+    // initialise the database and get any current data
+    db = Database(exerciseName: exercise.name);
+    db.initDatabase();
+    dayLog = db.getDayLog(DateTime.now());
+    activeTilesList = List.filled(dayLog.sets.length, false, growable: true);
 
     if (exercise.category == 'cardio') {
       exerciseType['Cardio'] = true;
@@ -101,25 +109,25 @@ class _AddExercisePageState extends State<AddExercisePage> {
     if (exerciseType['Cardio'] == true) {
       return DistanceTimeTile(
         index: index,
-        distance: listOfSets[index].distance,
-        hours: listOfSets[index].durationHours,
-        mins: listOfSets[index].durationMins,
-        secs: listOfSets[index].durationSecs,
+        distance: dayLog.sets[index].distance,
+        hours: dayLog.sets[index].durationHours,
+        mins: dayLog.sets[index].durationMins,
+        secs: dayLog.sets[index].durationSecs,
         active: activeTilesList[index],
       );
     } else if (exerciseType['Static'] == true) {
       return TimeTile(
         index: index,
-        hours: listOfSets[index].durationHours,
-        mins: listOfSets[index].durationMins,
-        secs: listOfSets[index].durationSecs,
+        hours: dayLog.sets[index].durationHours,
+        mins: dayLog.sets[index].durationMins,
+        secs: dayLog.sets[index].durationSecs,
         active: activeTilesList[index],
       );
     } else {
       return WeightRepTile(
         index: index,
-        weight: listOfSets[index].weight,
-        reps: listOfSets[index].reps,
+        weight: dayLog.sets[index].weight,
+        reps: dayLog.sets[index].reps,
         active: activeTilesList[index],
       );
     }
@@ -144,16 +152,22 @@ class _AddExercisePageState extends State<AddExercisePage> {
     }
 
     setState(() {
-      listOfSets.add(newSet);
+      dayLog.sets.add(newSet);
       activeTilesList.add(false);
+
+      // update database
+      db.updateDayLog(dayLog);
     });
   }
 
   // Delete set from list
   void deleteSet() {
     setState(() {
-      listOfSets.removeAt(activeTilesList.indexOf(true));
+      dayLog.sets.removeAt(activeTilesList.indexOf(true));
       activeTilesList.removeAt(activeTilesList.indexOf(true));
+
+      // update database
+      db.updateDayLog(dayLog);
     });
   }
 
@@ -176,7 +190,10 @@ class _AddExercisePageState extends State<AddExercisePage> {
     }
 
     setState(() {
-      listOfSets[index] = newSet;
+      dayLog.sets[index] = newSet;
+
+      // update database
+      db.updateDayLog(dayLog);
     });
   }
 
@@ -184,17 +201,17 @@ class _AddExercisePageState extends State<AddExercisePage> {
   void onTileSelected(int index) {
     setState(() {
       if (exerciseType['Cardio'] == true) {
-        distController.text = listOfSets[index].distance.toString();
-        hoursController.text = listOfSets[index].durationHours.toString();
-        minsController.text = listOfSets[index].durationMins.toString();
-        secsController.text = listOfSets[index].durationSecs.toString();
+        distController.text = dayLog.sets[index].distance.toString();
+        hoursController.text = dayLog.sets[index].durationHours.toString();
+        minsController.text = dayLog.sets[index].durationMins.toString();
+        secsController.text = dayLog.sets[index].durationSecs.toString();
       } else if (exerciseType['Static'] == true) {
-        hoursController.text = listOfSets[index].durationHours.toString();
-        minsController.text = listOfSets[index].durationMins.toString();
-        secsController.text = listOfSets[index].durationSecs.toString();
+        hoursController.text = dayLog.sets[index].durationHours.toString();
+        minsController.text = dayLog.sets[index].durationMins.toString();
+        secsController.text = dayLog.sets[index].durationSecs.toString();
       } else {
-        weightController.text = listOfSets[index].weight.toString();
-        repsController.text = listOfSets[index].reps.toString();
+        weightController.text = dayLog.sets[index].weight.toString();
+        repsController.text = dayLog.sets[index].reps.toString();
       }
 
       updateActiveList(index);
@@ -269,7 +286,7 @@ class _AddExercisePageState extends State<AddExercisePage> {
             Expanded(
               child: Scrollbar(
                 child: ListView.builder(
-                  itemCount: listOfSets.length,
+                  itemCount: dayLog.sets.length,
                   itemBuilder: (context, index) {
                     return GestureDetector(
                       // Display tiles based on exercise category

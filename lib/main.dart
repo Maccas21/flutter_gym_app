@@ -1,7 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gym_app/Model/exercises.dart';
 import 'package:flutter_gym_app/Pages/home_page.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
-void main() {
+void main() async {
+  // init hive
+  await Hive.initFlutter();
+
+  // register hive adapters
+  Hive.registerAdapter(ExerciseDayLogAdapter());
+  Hive.registerAdapter(ExerciseSetAdapter());
+
+  // open hive box
+  await Hive.openBox('hivebox');
+
   runApp(const MyApp());
 }
 
