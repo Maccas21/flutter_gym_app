@@ -74,6 +74,9 @@ const muscleCategory = {
   ],
 };
 
+// When changing RUN COMMAND: "flutter packages pub run build_runner build"
+// regenerates type adapters used by hive
+
 @HiveType(typeId: 1)
 class ExerciseSet {
   @HiveField(0)
@@ -95,5 +98,7 @@ class ExerciseDayLog {
   @HiveField(0)
   List<ExerciseSet> sets = [];
   @HiveField(1)
-  DateTime date = DateTime.now();
+  DateTime date;
+
+  ExerciseDayLog({required this.date});
 }

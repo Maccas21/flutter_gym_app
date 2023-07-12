@@ -64,9 +64,9 @@ class ExerciseDayLogAdapter extends TypeAdapter<ExerciseDayLog> {
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return ExerciseDayLog()
-      ..sets = (fields[0] as List).cast<ExerciseSet>()
-      ..date = fields[1] as DateTime;
+    return ExerciseDayLog(
+      date: fields[1] as DateTime,
+    )..sets = (fields[0] as List).cast<ExerciseSet>();
   }
 
   @override

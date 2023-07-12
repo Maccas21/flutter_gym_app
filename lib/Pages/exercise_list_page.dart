@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gym_app/Model/exercises.dart';
 import 'dart:convert';
+import 'package:intl/intl.dart';
 
 extension StringCasingExtension on String {
   String toCapitalized() =>
@@ -14,8 +15,10 @@ extension StringCasingExtension on String {
 
 class ExerciseListPage extends StatefulWidget {
   final Function listViewOnTap;
+  final DateTime currentDate;
 
-  const ExerciseListPage({super.key, required this.listViewOnTap});
+  const ExerciseListPage(
+      {super.key, required this.listViewOnTap, required this.currentDate});
 
   @override
   State<ExerciseListPage> createState() => _ExerciseListPageState();
@@ -33,11 +36,6 @@ class _ExerciseListPageState extends State<ExerciseListPage> {
     'Core': false,
     'Legs': false,
   };
-
-  @override
-  void initState() {
-    super.initState();
-  }
 
   @override
   void dispose() {
@@ -200,6 +198,17 @@ class _ExerciseListPageState extends State<ExerciseListPage> {
                 ),
               ),
               onChanged: searchExercises,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(10, 0, 0, 10),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                DateFormat('EEEEE, MMMM dd').format(widget.currentDate),
+                style: const TextStyle(fontSize: 15),
+                textAlign: TextAlign.left,
+              ),
             ),
           ),
           SizedBox(

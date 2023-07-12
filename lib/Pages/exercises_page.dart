@@ -5,7 +5,8 @@ import 'package:flutter_gym_app/Pages/graph_tab.dart';
 import 'package:flutter_gym_app/Pages/history_tab.dart';
 
 class ExercisesPage extends StatefulWidget {
-  const ExercisesPage({super.key});
+  final DateTime currentDate;
+  const ExercisesPage({super.key, required this.currentDate});
 
   @override
   State<ExercisesPage> createState() => _ExercisesPageState();
@@ -16,18 +17,19 @@ class _ExercisesPageState extends State<ExercisesPage> {
   late List<Widget> exercisePages = [
     ExerciseListPage(
       listViewOnTap: listViewOnTap,
+      currentDate: widget.currentDate,
     ),
     const GraphTab(),
     const HistoryTab(),
   ];
 
   void listViewOnTap(String name) {
-    //print(name);
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (BuildContext context) {
           return AddExercisePage(
             exerciseName: name,
+            currentDate: widget.currentDate,
           );
         },
       ),

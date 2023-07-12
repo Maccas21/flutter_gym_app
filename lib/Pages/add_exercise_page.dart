@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gym_app/Model/database.dart';
-import 'package:flutter_gym_app/Util/distance_time_input.dart';
-import 'package:flutter_gym_app/Util/distance_time_tile.dart';
-import 'package:flutter_gym_app/Util/time_input.dart';
-import 'package:flutter_gym_app/Util/time_tile.dart';
-import 'package:flutter_gym_app/Util/weight_rep_input.dart';
-import 'package:flutter_gym_app/Util/weight_rep_tile.dart';
-import 'package:intl/intl.dart';
 import 'package:flutter_gym_app/Model/exercises.dart';
+import 'package:flutter_gym_app/Util/distance_time_input.dart';
+import 'package:flutter_gym_app/Util/tile_selector_helper.dart';
+import 'package:flutter_gym_app/Util/time_input.dart';
+import 'package:flutter_gym_app/Util/weight_rep_input.dart';
+import 'package:intl/intl.dart';
 
 class AddExercisePage extends StatefulWidget {
   final String exerciseName;
+  final DateTime currentDate;
 
-  const AddExercisePage({super.key, required this.exerciseName});
+  const AddExercisePage(
+      {super.key, required this.exerciseName, required this.currentDate});
 
   @override
   State<AddExercisePage> createState() => _AddExercisePageState();
@@ -20,8 +20,8 @@ class AddExercisePage extends StatefulWidget {
 
 class _AddExercisePageState extends State<AddExercisePage> {
   late Exercise exercise;
-  late Database db;
-  ExerciseDayLog dayLog = ExerciseDayLog();
+  late ExerciseDatabase db;
+  late ExerciseDayLog dayLog;
   List<bool> activeTilesList = [];
   Map<String, bool> exerciseType = {
     'Cardio': false,
@@ -48,9 +48,10 @@ class _AddExercisePageState extends State<AddExercisePage> {
     }).first;
 
     // initialise the database and get any current data
-    db = Database(exerciseName: exercise.name);
+    db = ExerciseDatabase(
+        exerciseName: exercise.name, currentDate: widget.currentDate);
     db.initDatabase();
-    dayLog = db.getDayLog(DateTime.now());
+    dayLog = db.getDayLog(widget.currentDate);
     activeTilesList = List.filled(dayLog.sets.length, false, growable: true);
 
     if (exercise.category == 'cardio') {
@@ -100,35 +101,6 @@ class _AddExercisePageState extends State<AddExercisePage> {
       return WeightSetInput(
         weightController: weightController,
         repsController: repsController,
-      );
-    }
-  }
-
-  // Return tile widget based on weight/reps OR distance/time OR time
-  Widget tileSelector(int index) {
-    if (exerciseType['Cardio'] == true) {
-      return DistanceTimeTile(
-        index: index,
-        distance: dayLog.sets[index].distance,
-        hours: dayLog.sets[index].durationHours,
-        mins: dayLog.sets[index].durationMins,
-        secs: dayLog.sets[index].durationSecs,
-        active: activeTilesList[index],
-      );
-    } else if (exerciseType['Static'] == true) {
-      return TimeTile(
-        index: index,
-        hours: dayLog.sets[index].durationHours,
-        mins: dayLog.sets[index].durationMins,
-        secs: dayLog.sets[index].durationSecs,
-        active: activeTilesList[index],
-      );
-    } else {
-      return WeightRepTile(
-        index: index,
-        weight: dayLog.sets[index].weight,
-        reps: dayLog.sets[index].reps,
-        active: activeTilesList[index],
       );
     }
   }
@@ -191,6 +163,7 @@ class _AddExercisePageState extends State<AddExercisePage> {
 
     setState(() {
       dayLog.sets[index] = newSet;
+      updateActiveList(-1);
 
       // update database
       db.updateDayLog(dayLog);
@@ -220,6 +193,12 @@ class _AddExercisePageState extends State<AddExercisePage> {
 
   // Set selected tile as active
   void updateActiveList(int index) {
+    // if index is -1 reset all bools to false
+    if (index == -1) {
+      activeTilesList =
+          List.filled(activeTilesList.length, false, growable: true);
+      return;
+    }
     // make current active false
     if (activeTilesList[index]) {
       activeTilesList[index] = false;
@@ -256,7 +235,7 @@ class _AddExercisePageState extends State<AddExercisePage> {
         child: Column(
           children: [
             Text(
-              DateFormat('EEE dd/MM').format(DateTime.now()),
+              DateFormat('EEEEE, MMMM dd').format(widget.currentDate),
               style: const TextStyle(fontSize: 20),
             ),
             // Display based on exercise category
@@ -290,7 +269,12 @@ class _AddExercisePageState extends State<AddExercisePage> {
                   itemBuilder: (context, index) {
                     return GestureDetector(
                       // Display tiles based on exercise category
-                      child: tileSelector(index),
+                      child: TileSelectorHelper(
+                        exercise: exercise,
+                        exerciseSet: dayLog.sets[index],
+                        index: index,
+                        activeTile: activeTilesList[index],
+                      ),
                       onTap: () {
                         onTileSelected(index);
                       },
