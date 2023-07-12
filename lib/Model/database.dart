@@ -72,6 +72,10 @@ class DayDatabase {
   // reference to Hive box
   final Box box = Hive.box('hivebox');
 
+  void initDB() {
+    updateDatabase();
+  }
+
   void updateDatabase() {
     currentDateExercises =
         box.get(DateFormat('YYMMDD').format(currentDate)) ?? [];

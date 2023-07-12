@@ -14,6 +14,9 @@ void main() async {
   // open hive box
   await Hive.openBox('hivebox');
 
+  // get exercises from JSON file
+  await readJSON();
+
   runApp(const MyApp());
 }
 

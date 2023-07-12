@@ -1,4 +1,6 @@
 import 'package:hive/hive.dart';
+import 'package:flutter/services.dart';
+import 'dart:convert';
 part 'exercises.g.dart';
 
 class Exercise {
@@ -73,6 +75,30 @@ const muscleCategory = {
     'quadriceps',
   ],
 };
+
+// Fetch content from json file
+Future<void> readJSON() async {
+  // check if list is not empty
+  if (defaultExercises.isEmpty) {
+    // load json file
+    final String response =
+        await rootBundle.loadString('assets/exercises.json');
+    final data = await json.decode(response);
+
+    // fill list with json data
+    for (var exercise in data['exercises']) {
+      defaultExercises.add(Exercise(
+        name: exercise['name'],
+        force: exercise['force'] ?? '',
+        category: exercise['category'],
+        primaryMuscles: List<String>.from(exercise['primaryMuscles']),
+        secondaryMuscles: List<String>.from(exercise['secondaryMuscles'] ?? []),
+        instructions: List<String>.from(exercise['instructions'] ?? []),
+        defaultExercise: true,
+      ));
+    }
+  }
+}
 
 // When changing RUN COMMAND: "flutter packages pub run build_runner build"
 // regenerates type adapters used by hive

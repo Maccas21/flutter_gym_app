@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_gym_app/Model/exercises.dart';
-import 'dart:convert';
 import 'package:intl/intl.dart';
 
 extension StringCasingExtension on String {
@@ -41,31 +39,6 @@ class _ExerciseListPageState extends State<ExerciseListPage> {
   void dispose() {
     super.dispose();
     searchBarController.dispose();
-  }
-
-  // Fetch content from json file
-  Future<void> readJSON() async {
-    // check if list is not empty
-    if (defaultExercises.isEmpty) {
-      // load json file
-      final String response =
-          await rootBundle.loadString('assets/exercises.json');
-      final data = await json.decode(response);
-
-      // fill list with json data
-      for (var exercise in data['exercises']) {
-        defaultExercises.add(Exercise(
-          name: exercise['name'],
-          force: exercise['force'] ?? '',
-          category: exercise['category'],
-          primaryMuscles: List<String>.from(exercise['primaryMuscles']),
-          secondaryMuscles:
-              List<String>.from(exercise['secondaryMuscles'] ?? []),
-          instructions: List<String>.from(exercise['instructions'] ?? []),
-          defaultExercise: true,
-        ));
-      }
-    }
   }
 
   // Search list of exercises based on search bar
@@ -234,43 +207,26 @@ class _ExerciseListPageState extends State<ExerciseListPage> {
             ),
           ),
           Expanded(
-            child: FutureBuilder(
-              future: readJSON(),
-              builder: (context, snapshot) {
-                // if it is done loading
-                if (snapshot.connectionState == ConnectionState.done) {
-                  return Scrollbar(
-                    child: ListView.builder(
-                      itemCount: exerciseList.length,
-                      itemBuilder: (context, index) {
-                        return ListTile(
-                          title: Text(
-                            exerciseList[index].name,
-                            style: const TextStyle(fontSize: 15),
-                          ),
-                          subtitle: Text(
-                            exerciseList[index]
-                                .primaryMuscles
-                                .first
-                                .toTitleCase(),
-                            style: const TextStyle(fontSize: 14),
-                          ),
-                          visualDensity: const VisualDensity(vertical: -4),
-                          onTap: () {
-                            widget.listViewOnTap(exerciseList[index].name);
-                          },
-                        );
-                      },
+            child: Scrollbar(
+              child: ListView.builder(
+                itemCount: exerciseList.length,
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    title: Text(
+                      exerciseList[index].name,
+                      style: const TextStyle(fontSize: 15),
                     ),
+                    subtitle: Text(
+                      exerciseList[index].primaryMuscles.first.toTitleCase(),
+                      style: const TextStyle(fontSize: 14),
+                    ),
+                    visualDensity: const VisualDensity(vertical: -4),
+                    onTap: () {
+                      widget.listViewOnTap(exerciseList[index].name);
+                    },
                   );
-                }
-                // if it is still loading
-                else {
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                }
-              },
+                },
+              ),
             ),
           ),
         ],

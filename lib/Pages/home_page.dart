@@ -19,7 +19,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
 
-    db.updateDatabase();
+    db.initDB();
   }
 
   // update page when coming back to this page
