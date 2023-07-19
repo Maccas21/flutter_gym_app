@@ -15,13 +15,6 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   DayDatabase db = DayDatabase();
 
-  @override
-  void initState() {
-    super.initState();
-
-    db.initDB();
-  }
-
   // update page when coming back to this page
   void reinitPage() {
     setState(() {

@@ -21,7 +21,6 @@ class AddExercisePage extends StatefulWidget {
 class _AddExercisePageState extends State<AddExercisePage> {
   late Exercise exercise;
   late ExerciseDatabase db;
-  late ExerciseDayLog dayLog;
   List<bool> activeTilesList = [];
 
   TextEditingController weightController = TextEditingController();
@@ -45,9 +44,8 @@ class _AddExercisePageState extends State<AddExercisePage> {
     // initialise the database and get any current data
     db = ExerciseDatabase(
         exerciseName: exercise.name, currentDate: widget.currentDate);
-    db.initDatabase();
-    dayLog = db.getDayLog(widget.currentDate);
-    activeTilesList = List.filled(dayLog.sets.length, false, growable: true);
+    activeTilesList =
+        List.filled(db.currentDayLog.sets.length, false, growable: true);
 
     weightController.text = '20';
     repsController.text = '8';
@@ -111,22 +109,22 @@ class _AddExercisePageState extends State<AddExercisePage> {
     }
 
     setState(() {
-      dayLog.sets.add(newSet);
+      db.currentDayLog.sets.add(newSet);
       activeTilesList.add(false);
 
       // update database
-      db.updateDayLog(dayLog);
+      db.addDayLog();
     });
   }
 
   // Delete set from list
   void deleteSet() {
     setState(() {
-      dayLog.sets.removeAt(activeTilesList.indexOf(true));
+      db.currentDayLog.sets.removeAt(activeTilesList.indexOf(true));
       activeTilesList.removeAt(activeTilesList.indexOf(true));
 
       // update database
-      db.updateDayLog(dayLog);
+      db.deleteDayLog();
     });
   }
 
@@ -149,11 +147,11 @@ class _AddExercisePageState extends State<AddExercisePage> {
     }
 
     setState(() {
-      dayLog.sets[index] = newSet;
+      db.currentDayLog.sets[index] = newSet;
       updateActiveList(-1);
 
       // update database
-      db.updateDayLog(dayLog);
+      db.addDayLog();
     });
   }
 
@@ -161,17 +159,23 @@ class _AddExercisePageState extends State<AddExercisePage> {
   void onTileSelected(int index) {
     setState(() {
       if (exercise.exerciseType == ExerciseType.cardio) {
-        distController.text = dayLog.sets[index].distance.toString();
-        hoursController.text = dayLog.sets[index].durationHours.toString();
-        minsController.text = dayLog.sets[index].durationMins.toString();
-        secsController.text = dayLog.sets[index].durationSecs.toString();
+        distController.text = db.currentDayLog.sets[index].distance.toString();
+        hoursController.text =
+            db.currentDayLog.sets[index].durationHours.toString();
+        minsController.text =
+            db.currentDayLog.sets[index].durationMins.toString();
+        secsController.text =
+            db.currentDayLog.sets[index].durationSecs.toString();
       } else if (exercise.exerciseType == ExerciseType.static) {
-        hoursController.text = dayLog.sets[index].durationHours.toString();
-        minsController.text = dayLog.sets[index].durationMins.toString();
-        secsController.text = dayLog.sets[index].durationSecs.toString();
+        hoursController.text =
+            db.currentDayLog.sets[index].durationHours.toString();
+        minsController.text =
+            db.currentDayLog.sets[index].durationMins.toString();
+        secsController.text =
+            db.currentDayLog.sets[index].durationSecs.toString();
       } else {
-        weightController.text = dayLog.sets[index].weight.toString();
-        repsController.text = dayLog.sets[index].reps.toString();
+        weightController.text = db.currentDayLog.sets[index].weight.toString();
+        repsController.text = db.currentDayLog.sets[index].reps.toString();
       }
 
       updateActiveList(index);
@@ -252,13 +256,13 @@ class _AddExercisePageState extends State<AddExercisePage> {
             Expanded(
               child: Scrollbar(
                 child: ListView.builder(
-                  itemCount: dayLog.sets.length,
+                  itemCount: db.currentDayLog.sets.length,
                   itemBuilder: (context, index) {
                     return GestureDetector(
                       // Display tiles based on exercise category
                       child: TileSelectorHelper(
                         exercise: exercise,
-                        exerciseSet: dayLog.sets[index],
+                        exerciseSet: db.currentDayLog.sets[index],
                         index: index,
                         activeTile: activeTilesList[index],
                       ),

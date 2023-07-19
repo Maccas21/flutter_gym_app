@@ -4,21 +4,22 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart';
 
 class ExerciseDatabase {
-  List<dynamic> exerciseLog = [];
-  List<dynamic> currentDayExercises = [];
+  late List<dynamic> exerciseLog; //List<ExerciseDayLog>
+  late List<dynamic> currentDayExercises; //List<String>
+  late ExerciseDayLog currentDayLog;
   String exerciseName;
   DateTime currentDate;
 
   // reference to Hive box
   final Box box = Hive.box('hivebox');
 
-  ExerciseDatabase({required this.exerciseName, required this.currentDate});
-
-  void initDatabase() {
+  ExerciseDatabase({required this.exerciseName, required this.currentDate}) {
     // initialize database;
     exerciseLog = box.get(exerciseName) ?? [];
     currentDayExercises =
         box.get(DateFormat('YYMMDD').format(currentDate)) ?? [];
+
+    currentDayLog = getDayLog(currentDate);
   }
 
   void updateDatabase() {
@@ -26,21 +27,29 @@ class ExerciseDatabase {
     box.put(DateFormat('YYMMDD').format(currentDate), currentDayExercises);
   }
 
-  void updateDayLog(ExerciseDayLog log) {
-    int index = getDayLogIndex(log.date);
+  void addDayLog() {
+    int index = getDayLogIndex(currentDayLog.date);
 
-    // add updated log if not empty
-    if (log.sets.isNotEmpty) {
-      // add if not already in else update
-      index == -1 ? exerciseLog.add(log) : exerciseLog[index] = log;
+    // add if not already in else update
+    index == -1
+        ? exerciseLog.add(currentDayLog)
+        : exerciseLog[index] = currentDayLog;
 
-      // check if exercises have been added to database for current date
-      if (!currentDayExercises.contains(exerciseName)) {
-        currentDayExercises.add(exerciseName);
-      }
-    } else {
+    // check if exercises have been added to database for current date
+    if (!currentDayExercises.contains(exerciseName)) {
+      currentDayExercises.add(exerciseName);
+    }
+
+    //update database
+    updateDatabase();
+  }
+
+  void deleteDayLog() {
+    int index = getDayLogIndex(currentDayLog.date);
+
+    if (currentDayLog.sets.isEmpty && index != -1) {
       // remove from database if empty
-      index != -1 ? exerciseLog.removeAt(index) : ();
+      exerciseLog.removeAt(index);
       currentDayExercises.removeWhere((exercise) => exercise == exerciseName);
     }
 
@@ -66,13 +75,13 @@ class ExerciseDatabase {
 
 class DayDatabase {
   DateTime currentDate = DateTime.now();
-  List<dynamic> currentDateExercises = [];
+  List<dynamic> currentDateExercises = []; //List< of >string>
   List<ExerciseDayLog> dayExerciseList = [];
 
   // reference to Hive box
   final Box box = Hive.box('hivebox');
 
-  void initDB() {
+  DayDatabase() {
     updateDatabase();
   }
 
@@ -82,7 +91,7 @@ class DayDatabase {
 
     dayExerciseList.clear();
 
-    for (var exercise in currentDateExercises) {
+    for (String exercise in currentDateExercises) {
       // get list from database
       List<dynamic> temp = box.get(exercise) ?? [];
       // get specific day
