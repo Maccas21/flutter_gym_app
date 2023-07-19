@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'dart:convert';
 part 'exercises.g.dart';
 
+enum ExerciseType { cardio, static, weights }
+
 class Exercise {
   String name;
   String force;
@@ -11,6 +13,7 @@ class Exercise {
   List<String> primaryMuscles;
   List<String> secondaryMuscles;
   List<String> instructions;
+  late ExerciseType exerciseType;
 
   Exercise({
     required this.name,
@@ -20,7 +23,15 @@ class Exercise {
     required this.secondaryMuscles,
     required this.instructions,
     required this.defaultExercise,
-  });
+  }) {
+    if (category == 'cardio') {
+      exerciseType = ExerciseType.cardio;
+    } else if (force == 'static') {
+      exerciseType = ExerciseType.static;
+    } else {
+      exerciseType = ExerciseType.weights;
+    }
+  }
 }
 
 List<Exercise> defaultExercises = [];

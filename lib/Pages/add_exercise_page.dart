@@ -23,11 +23,6 @@ class _AddExercisePageState extends State<AddExercisePage> {
   late ExerciseDatabase db;
   late ExerciseDayLog dayLog;
   List<bool> activeTilesList = [];
-  Map<String, bool> exerciseType = {
-    'Cardio': false,
-    'Static': false,
-    'Weights': false
-  };
 
   TextEditingController weightController = TextEditingController();
   TextEditingController repsController = TextEditingController();
@@ -54,14 +49,6 @@ class _AddExercisePageState extends State<AddExercisePage> {
     dayLog = db.getDayLog(widget.currentDate);
     activeTilesList = List.filled(dayLog.sets.length, false, growable: true);
 
-    if (exercise.category == 'cardio') {
-      exerciseType['Cardio'] = true;
-    } else if (exercise.force == 'static') {
-      exerciseType['Static'] = true;
-    } else {
-      exerciseType['Weights'] = true;
-    }
-
     weightController.text = '20';
     repsController.text = '8';
     hoursController.text = '0';
@@ -84,13 +71,13 @@ class _AddExercisePageState extends State<AddExercisePage> {
 
   // Return input component based on weight/reps OR distance/time OR time
   Widget inputSelector() {
-    if (exerciseType['Cardio'] == true) {
+    if (exercise.exerciseType == ExerciseType.cardio) {
       return DistanceTimeInput(
           distController: distController,
           hoursController: hoursController,
           minsController: minsController,
           secsController: secsController);
-    } else if (exerciseType['Static'] == true) {
+    } else if (exercise.exerciseType == ExerciseType.static) {
       return TimeInput(
         hoursController: hoursController,
         minsController: minsController,
@@ -109,12 +96,12 @@ class _AddExercisePageState extends State<AddExercisePage> {
   void addSet() {
     ExerciseSet newSet = ExerciseSet();
 
-    if (exerciseType['Cardio'] == true) {
+    if (exercise.exerciseType == ExerciseType.cardio) {
       newSet.distance = int.parse(distController.text);
       newSet.durationHours = int.parse(hoursController.text);
       newSet.durationMins = int.parse(minsController.text);
       newSet.durationSecs = int.parse(secsController.text);
-    } else if (exerciseType['Static'] == true) {
+    } else if (exercise.exerciseType == ExerciseType.static) {
       newSet.durationHours = int.parse(hoursController.text);
       newSet.durationMins = int.parse(minsController.text);
       newSet.durationSecs = int.parse(secsController.text);
@@ -147,12 +134,12 @@ class _AddExercisePageState extends State<AddExercisePage> {
   void updateSet(int index) {
     ExerciseSet newSet = ExerciseSet();
 
-    if (exerciseType['Cardio'] == true) {
+    if (exercise.exerciseType == ExerciseType.cardio) {
       newSet.distance = int.parse(distController.text);
       newSet.durationHours = int.parse(hoursController.text);
       newSet.durationMins = int.parse(minsController.text);
       newSet.durationSecs = int.parse(secsController.text);
-    } else if (exerciseType['Static'] == true) {
+    } else if (exercise.exerciseType == ExerciseType.static) {
       newSet.durationHours = int.parse(hoursController.text);
       newSet.durationMins = int.parse(minsController.text);
       newSet.durationSecs = int.parse(secsController.text);
@@ -173,12 +160,12 @@ class _AddExercisePageState extends State<AddExercisePage> {
   // Update the input to reflect tile and change active tiles list
   void onTileSelected(int index) {
     setState(() {
-      if (exerciseType['Cardio'] == true) {
+      if (exercise.exerciseType == ExerciseType.cardio) {
         distController.text = dayLog.sets[index].distance.toString();
         hoursController.text = dayLog.sets[index].durationHours.toString();
         minsController.text = dayLog.sets[index].durationMins.toString();
         secsController.text = dayLog.sets[index].durationSecs.toString();
-      } else if (exerciseType['Static'] == true) {
+      } else if (exercise.exerciseType == ExerciseType.static) {
         hoursController.text = dayLog.sets[index].durationHours.toString();
         minsController.text = dayLog.sets[index].durationMins.toString();
         secsController.text = dayLog.sets[index].durationSecs.toString();

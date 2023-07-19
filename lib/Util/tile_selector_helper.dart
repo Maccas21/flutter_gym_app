@@ -23,28 +23,9 @@ class TileSelectorHelper extends StatefulWidget {
 }
 
 class _TileSelectorHelperState extends State<TileSelectorHelper> {
-  Map<String, bool> exerciseType = {
-    'Cardio': false,
-    'Static': false,
-    'Weights': false
-  };
-
-  @override
-  void initState() {
-    super.initState();
-
-    if (widget.exercise.category == 'cardio') {
-      exerciseType['Cardio'] = true;
-    } else if (widget.exercise.force == 'static') {
-      exerciseType['Static'] = true;
-    } else {
-      exerciseType['Weights'] = true;
-    }
-  }
-
   // Return tile widget based on weight/reps OR distance/time OR time
   Widget tileSelector() {
-    if (exerciseType['Cardio'] == true) {
+    if (widget.exercise.exerciseType == ExerciseType.cardio) {
       return DistanceTimeTile(
         index: widget.index,
         distance: widget.exerciseSet.distance,
@@ -53,7 +34,7 @@ class _TileSelectorHelperState extends State<TileSelectorHelper> {
         secs: widget.exerciseSet.durationSecs,
         active: widget.activeTile,
       );
-    } else if (exerciseType['Static'] == true) {
+    } else if (widget.exercise.exerciseType == ExerciseType.static) {
       return TimeTile(
         index: widget.index,
         hours: widget.exerciseSet.durationHours,
