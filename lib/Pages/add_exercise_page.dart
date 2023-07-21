@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gym_app/Model/database.dart';
 import 'package:flutter_gym_app/Model/exercises.dart';
 import 'package:flutter_gym_app/Util/distance_time_input.dart';
-import 'package:flutter_gym_app/Util/tile_selector_helper.dart';
+import 'package:flutter_gym_app/Util/tile_type_helper.dart';
 import 'package:flutter_gym_app/Util/time_input.dart';
 import 'package:flutter_gym_app/Util/weight_rep_input.dart';
 import 'package:intl/intl.dart';
@@ -260,7 +260,7 @@ class _AddExercisePageState extends State<AddExercisePage> {
                   itemBuilder: (context, index) {
                     return GestureDetector(
                       // Display tiles based on exercise category
-                      child: TileSelectorHelper(
+                      child: TileTypeHelper(
                         exercise: exercise,
                         exerciseSet: db.currentDayLog.sets[index],
                         index: index,

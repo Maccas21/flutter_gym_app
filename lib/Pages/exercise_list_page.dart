@@ -180,7 +180,6 @@ class _ExerciseListPageState extends State<ExerciseListPage> {
               child: Text(
                 DateFormat('EEEEE, MMMM dd').format(widget.currentDate),
                 style: const TextStyle(fontSize: 15),
-                textAlign: TextAlign.left,
               ),
             ),
           ),

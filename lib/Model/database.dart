@@ -94,13 +94,14 @@ class DayDatabase {
     for (String exercise in currentDateExercises) {
       // get list from database
       List<dynamic> temp = box.get(exercise) ?? [];
+
       // get specific day
       ExerciseDayLog returnValue = temp.firstWhere((dayLog) {
         return DateUtils.isSameDay(dayLog.date, currentDate);
       }, orElse: () => ExerciseDayLog(date: DateTime.now()));
 
       // add to current list if found
-      if (returnValue != ExerciseDayLog(date: DateTime.now())) {
+      if (returnValue.sets.isNotEmpty) {
         dayExerciseList.add(returnValue);
       }
     }

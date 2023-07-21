@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gym_app/Model/database.dart';
+import 'package:flutter_gym_app/Pages/add_exercise_page.dart';
 import 'package:flutter_gym_app/Pages/exercises_page.dart';
 import 'package:flutter_gym_app/Pages/routines_page.dart';
 import 'package:flutter_gym_app/Util/exercise_day_tile.dart';
@@ -24,13 +25,13 @@ class _HomePageState extends State<HomePage> {
 
   void addDay() {
     setState(() {
-      db.setDay(db.currentDate.subtract(const Duration(days: 1)));
+      db.setDay(db.currentDate.add(const Duration(days: 1)));
     });
   }
 
   void subtractDay() {
     setState(() {
-      db.setDay(db.currentDate.subtract(const Duration(days: -1)));
+      db.setDay(db.currentDate.subtract(const Duration(days: 1)));
     });
   }
 
@@ -38,6 +39,20 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       db.setDay(DateTime.now());
     });
+  }
+
+  // open add exercise page when day tile is clicked
+  void dayTileOnTap(String name) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (BuildContext context) {
+          return AddExercisePage(
+            exerciseName: name,
+            currentDate: db.currentDate,
+          );
+        },
+      ),
+    ).then((value) => reinitPage());
   }
 
   @override
@@ -103,9 +118,15 @@ class _HomePageState extends State<HomePage> {
                 child: ListView.builder(
                   itemCount: db.currentDateExercises.length,
                   itemBuilder: ((context, index) {
-                    return ExerciseDayTile(
+                    return GestureDetector(
+                      onTap: () {
+                        dayTileOnTap(db.currentDateExercises[index]);
+                      },
+                      child: ExerciseDayTile(
                         dayLog: db.dayExerciseList[index],
-                        exerciseName: db.currentDateExercises[index]);
+                        exerciseName: db.currentDateExercises[index],
+                      ),
+                    );
                   }),
                 ),
               ),
