@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gym_app/Model/exercises.dart';
-import 'package:flutter_gym_app/Pages/home_page.dart';
+import 'package:flutter_gym_app/Pages/main_page.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 void main() async {
@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(primarySwatch: Colors.blue),
-      home: const HomePage(),
+      home: const MainPage(),
     );
   }
 }

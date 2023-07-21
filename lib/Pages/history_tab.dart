@@ -5,8 +5,11 @@ class HistoryTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("History"),
+      ),
+      body: const Center(
         child: Column(
           children: [
             Text("History Tab"),
