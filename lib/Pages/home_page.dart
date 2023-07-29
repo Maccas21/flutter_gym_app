@@ -16,7 +16,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   DayDatabase db = DayDatabase(DateTime.now());
 
-  // update page when coming back to this page
+  // Update database and redraw widgets
   void reinitPage() {
     setState(() {
       db.updateDatabase();
@@ -41,7 +41,8 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  // open add exercise page when day tile is clicked
+  // Open AddExercise page when day tile is clicked
+  // Redraw state when poping back to home page
   void dayTileOnTap(String name, DateTime currentDate) {
     Navigator.of(context).push(
       MaterialPageRoute(

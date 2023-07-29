@@ -19,11 +19,21 @@ class _MainPageState extends State<MainPage> {
     GlobalKey<NavigatorState>(),
   ];
 
-  List<Widget> pages = const [
-    HomePage(),
-    GraphTab(),
-    HistoryTab(),
-  ];
+  // to access the HistoryTabState in another file
+  final historyTabKey = GlobalKey<HistoryTabState>();
+
+  List<Widget> pages = [];
+
+  @override
+  void initState() {
+    super.initState();
+
+    pages = [
+      const HomePage(),
+      const GraphTab(),
+      HistoryTab(key: historyTabKey),
+    ];
+  }
 
   // Create an offstage toggle and build seperate navigator routes for each tab
   Widget offStageNavigatorBuilder(int index) {
@@ -47,9 +57,14 @@ class _MainPageState extends State<MainPage> {
         currentPage = index;
       });
     }
+
+    // update values on history page when bottom navigation is clicked
+    if (index == 2) {
+      historyTabKey.currentState?.redraw();
+    }
   }
 
-  // return true if should pop scope or false otherwise
+  // Return true if should pop scope or false otherwise
   Future<bool> onWillPop() async {
     final bool isFirstRouteInCurrentTab =
         !await keys[currentPage].currentState!.maybePop();
@@ -76,10 +91,7 @@ class _MainPageState extends State<MainPage> {
           children: [
             offStageNavigatorBuilder(0),
             offStageNavigatorBuilder(1),
-            Visibility(
-              visible: currentPage == 2,
-              child: offStageNavigatorBuilder(2),
-            ),
+            offStageNavigatorBuilder(2),
           ],
         ),
         bottomNavigationBar: BottomNavigationBar(

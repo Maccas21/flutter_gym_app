@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gym_app/Model/database.dart';
+import 'package:flutter_gym_app/Pages/add_exercise_page.dart';
 import 'package:flutter_gym_app/Util/exercise_day_tile.dart';
 import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 
 class HistoryTab extends StatefulWidget {
-  const HistoryTab({super.key});
+  const HistoryTab({Key? key}) : super(key: key);
+  //const HistoryTab({super.key});
 
   @override
-  State<HistoryTab> createState() => _HistoryTabState();
+  State<HistoryTab> createState() => HistoryTabState();
 }
 
-class _HistoryTabState extends State<HistoryTab> {
+class HistoryTabState extends State<HistoryTab> {
   final Box box = Hive.box('hivebox');
   late List<dynamic> datesHistory; //List<DateTime>
   late List<DayDatabase> db = [];
@@ -26,10 +28,28 @@ class _HistoryTabState extends State<HistoryTab> {
     }
   }
 
+  // Open AddExercise page when day tile is clicked
+  // Redraw state when poping back to history page
   void dayOnTileTap(String name, DateTime currentDate) {
-    // empty function
-    //print(name);
-    //print(currentDate);
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (BuildContext context) {
+          return AddExercisePage(
+            exerciseName: name,
+            currentDate: currentDate,
+          );
+        },
+      ),
+    ).then((value) => redraw());
+  }
+
+  // Update database and redraw widgets
+  void redraw() {
+    setState(() {
+      for (DayDatabase data in db) {
+        data.updateDatabase();
+      }
+    });
   }
 
   @override
