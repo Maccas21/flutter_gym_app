@@ -76,7 +76,10 @@ class _MainPageState extends State<MainPage> {
           children: [
             offStageNavigatorBuilder(0),
             offStageNavigatorBuilder(1),
-            offStageNavigatorBuilder(2),
+            Visibility(
+              visible: currentPage == 2,
+              child: offStageNavigatorBuilder(2),
+            ),
           ],
         ),
         bottomNavigationBar: BottomNavigationBar(

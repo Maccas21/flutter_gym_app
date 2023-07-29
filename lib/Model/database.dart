@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 class ExerciseDatabase {
   late List<dynamic> exerciseLog; //List<ExerciseDayLog>
   late List<dynamic> currentDayExercises; //List<String>
+  late List<dynamic> datesHistory; //List<DateTime>
   late ExerciseDayLog currentDayLog;
   String exerciseName;
   DateTime currentDate;
@@ -16,15 +17,20 @@ class ExerciseDatabase {
   ExerciseDatabase({required this.exerciseName, required this.currentDate}) {
     // initialize database;
     exerciseLog = box.get(exerciseName) ?? [];
-    currentDayExercises =
-        box.get(DateFormat('YYMMDD').format(currentDate)) ?? [];
+    currentDayExercises = box.get(DateFormat('yMMd').format(currentDate)) ?? [];
+    datesHistory = box.get('datesHistory') ?? [];
 
     currentDayLog = getDayLog(currentDate);
   }
 
   void updateDatabase() {
     box.put(exerciseName, exerciseLog);
-    box.put(DateFormat('YYMMDD').format(currentDate), currentDayExercises);
+    box.put(DateFormat('yMMd').format(currentDate), currentDayExercises);
+
+    datesHistory.sort((a, b) {
+      return b.compareTo(a);
+    });
+    box.put('datesHistory', datesHistory);
   }
 
   void addDayLog() {
@@ -40,6 +46,16 @@ class ExerciseDatabase {
       currentDayExercises.add(exerciseName);
     }
 
+    // check if there are exercises in current date
+    if (currentDayExercises.isNotEmpty) {
+      int index = datesHistory.indexWhere(
+          (comparingDate) => DateUtils.isSameDay(comparingDate, currentDate));
+      // not yet added to history
+      if (index == -1) {
+        datesHistory.add(currentDate);
+      }
+    }
+
     //update database
     updateDatabase();
   }
@@ -51,6 +67,16 @@ class ExerciseDatabase {
       // remove from database if empty
       exerciseLog.removeAt(index);
       currentDayExercises.removeWhere((exercise) => exercise == exerciseName);
+    }
+
+    // if no exercises in current date
+    if (currentDayExercises.isEmpty) {
+      int index = datesHistory.indexWhere(
+          (comparingDate) => DateUtils.isSameDay(comparingDate, currentDate));
+      // history contains current date
+      if (index != -1) {
+        datesHistory.removeAt(index);
+      }
     }
 
     //update database
@@ -74,20 +100,20 @@ class ExerciseDatabase {
 }
 
 class DayDatabase {
-  DateTime currentDate = DateTime.now();
+  DateTime currentDate;
   List<dynamic> currentDateExercises = []; //List< of >string>
   List<ExerciseDayLog> dayExerciseList = [];
 
   // reference to Hive box
   final Box box = Hive.box('hivebox');
 
-  DayDatabase() {
+  DayDatabase(this.currentDate) {
     updateDatabase();
   }
 
   void updateDatabase() {
     currentDateExercises =
-        box.get(DateFormat('YYMMDD').format(currentDate)) ?? [];
+        box.get(DateFormat('yMMd').format(currentDate)) ?? [];
 
     dayExerciseList.clear();
 

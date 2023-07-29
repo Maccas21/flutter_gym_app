@@ -226,7 +226,7 @@ class _AddExercisePageState extends State<AddExercisePage> {
         child: Column(
           children: [
             Text(
-              DateFormat('EEEEE, MMMM dd').format(widget.currentDate),
+              DateFormat('EEEE, MMMM dd').format(widget.currentDate),
               style: const TextStyle(fontSize: 20),
             ),
             // Display based on exercise category

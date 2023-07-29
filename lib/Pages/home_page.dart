@@ -14,7 +14,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  DayDatabase db = DayDatabase();
+  DayDatabase db = DayDatabase(DateTime.now());
 
   // update page when coming back to this page
   void reinitPage() {
@@ -42,13 +42,13 @@ class _HomePageState extends State<HomePage> {
   }
 
   // open add exercise page when day tile is clicked
-  void dayTileOnTap(String name) {
+  void dayTileOnTap(String name, DateTime currentDate) {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (BuildContext context) {
           return AddExercisePage(
             exerciseName: name,
-            currentDate: db.currentDate,
+            currentDate: currentDate,
           );
         },
       ),
@@ -76,7 +76,7 @@ class _HomePageState extends State<HomePage> {
                 GestureDetector(
                   onTap: resetDate,
                   child: Text(
-                    DateFormat('EEE dd/MM').format(db.currentDate),
+                    DateFormat('EEEE dd/MM').format(db.currentDate),
                     style: const TextStyle(fontSize: 20),
                   ),
                 ),
@@ -115,22 +115,12 @@ class _HomePageState extends State<HomePage> {
             ),
             Expanded(
               child: Scrollbar(
-                child: ListView.builder(
-                  itemCount: db.currentDateExercises.length,
-                  itemBuilder: ((context, index) {
-                    return GestureDetector(
-                      onTap: () {
-                        dayTileOnTap(db.currentDateExercises[index]);
-                      },
-                      child: ExerciseDayTile(
-                        dayLog: db.dayExerciseList[index],
-                        exerciseName: db.currentDateExercises[index],
-                      ),
-                    );
-                  }),
+                child: DayTile(
+                  db: db,
+                  dayTileOnTap: dayTileOnTap,
                 ),
               ),
-            )
+            ),
           ],
         ),
       ),

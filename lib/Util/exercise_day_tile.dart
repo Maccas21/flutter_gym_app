@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gym_app/Model/database.dart';
 import 'package:flutter_gym_app/Model/exercises.dart';
 import 'package:flutter_gym_app/Util/tile_type_helper.dart';
 
@@ -63,6 +64,41 @@ class _ExerciseDayTileState extends State<ExerciseDayTile> {
           ),
         ],
       ),
+    );
+  }
+}
+
+class DayTile extends StatefulWidget {
+  final DayDatabase db;
+  final Function dayTileOnTap;
+
+  const DayTile({super.key, required this.db, required this.dayTileOnTap});
+
+  @override
+  State<DayTile> createState() => _DayTileState();
+}
+
+class _DayTileState extends State<DayTile> {
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      physics: const ClampingScrollPhysics(),
+      shrinkWrap: true,
+      itemCount: widget.db.currentDateExercises.length,
+      itemBuilder: ((context, index) {
+        return GestureDetector(
+          onTap: () {
+            widget.dayTileOnTap(
+              widget.db.currentDateExercises[index],
+              widget.db.currentDate,
+            );
+          },
+          child: ExerciseDayTile(
+            dayLog: widget.db.dayExerciseList[index],
+            exerciseName: widget.db.currentDateExercises[index],
+          ),
+        );
+      }),
     );
   }
 }

@@ -178,7 +178,7 @@ class _ExerciseListPageState extends State<ExerciseListPage> {
             child: Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                DateFormat('EEEEE, MMMM dd').format(widget.currentDate),
+                DateFormat('EEEE, MMMM dd').format(widget.currentDate),
                 style: const TextStyle(fontSize: 15),
               ),
             ),
