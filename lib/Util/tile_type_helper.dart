@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gym_app/Model/exercises.dart';
 
+// ignore_for_file: prefer_adjacent_string_concatenation
+// ignore_for_file: prefer_interpolation_to_compose_strings
+
 class TileTypeHelper extends StatefulWidget {
   final Exercise exercise;
   final ExerciseSet exerciseSet;

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gym_app/Pages/graph_tab.dart';
-import 'package:flutter_gym_app/Pages/history_tab.dart';
+import 'package:flutter_gym_app/Pages/graph_page.dart';
+import 'package:flutter_gym_app/Pages/history_page.dart';
 import 'package:flutter_gym_app/Pages/home_page.dart';
 
 class MainPage extends StatefulWidget {
