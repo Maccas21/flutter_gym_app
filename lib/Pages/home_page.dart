@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gym_app/Model/database.dart';
-import 'package:flutter_gym_app/Pages/add_exercise_page.dart';
 import 'package:flutter_gym_app/Pages/exercises_page.dart';
+import 'package:flutter_gym_app/Pages/exercises_tabview.dart';
 import 'package:flutter_gym_app/Pages/routines_page.dart';
 import 'package:flutter_gym_app/Util/exercise_day_tile.dart';
 import 'package:intl/intl.dart';
@@ -47,7 +47,7 @@ class _HomePageState extends State<HomePage> {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (BuildContext context) {
-          return AddExercisePage(
+          return ExercisesTabView(
             exerciseName: name,
             currentDate: currentDate,
           );

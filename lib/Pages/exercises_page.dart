@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gym_app/Pages/add_exercise_page.dart';
 import 'package:flutter_gym_app/Pages/exercise_list_page.dart';
+import 'package:flutter_gym_app/Pages/exercises_tabview.dart';
 
 class ExercisesPage extends StatefulWidget {
   final DateTime currentDate;
@@ -15,7 +15,7 @@ class _ExercisesPageState extends State<ExercisesPage> {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (BuildContext context) {
-          return AddExercisePage(
+          return ExercisesTabView(
             exerciseName: name,
             currentDate: widget.currentDate,
           );

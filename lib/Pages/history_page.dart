@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gym_app/Model/database.dart';
-import 'package:flutter_gym_app/Pages/add_exercise_page.dart';
+//import 'package:flutter_gym_app/Pages/exercises_tabview.dart';
 import 'package:flutter_gym_app/Util/exercise_day_tile.dart';
 import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
@@ -28,19 +28,19 @@ class HistoryTabState extends State<HistoryTab> {
     }
   }
 
-  // Open AddExercise page when day tile is clicked
+  // Open ExercisesTabView page when day tile is clicked
   // Redraw state when poping back to history page
-  void dayOnTileTap(String name, DateTime currentDate) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (BuildContext context) {
-          return AddExercisePage(
-            exerciseName: name,
-            currentDate: currentDate,
-          );
-        },
-      ),
-    ).then((value) => redraw());
+  void dayTileOnTap(String name, DateTime currentDate) {
+    // Navigator.of(context).push(
+    //   MaterialPageRoute(
+    //     builder: (BuildContext context) {
+    //       return ExercisesTabView(
+    //         exerciseName: name,
+    //         currentDate: currentDate,
+    //       );
+    //     },
+    //   ),
+    // ).then((value) => redraw());
   }
 
   // Update database and redraw widgets
@@ -89,7 +89,7 @@ class HistoryTabState extends State<HistoryTab> {
                         ),
                         DayTile(
                           db: db[datesIndex],
-                          dayTileOnTap: dayOnTileTap,
+                          dayTileOnTap: dayTileOnTap,
                         ),
                       ],
                     ),

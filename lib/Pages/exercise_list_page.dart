@@ -14,9 +14,14 @@ extension StringCasingExtension on String {
 class ExerciseListPage extends StatefulWidget {
   final Function listViewOnTap;
   final DateTime currentDate;
+  final bool dateVisible;
 
-  const ExerciseListPage(
-      {super.key, required this.listViewOnTap, required this.currentDate});
+  const ExerciseListPage({
+    super.key,
+    required this.listViewOnTap,
+    required this.currentDate,
+    this.dateVisible = true,
+  });
 
   @override
   State<ExerciseListPage> createState() => _ExerciseListPageState();
@@ -173,13 +178,16 @@ class _ExerciseListPageState extends State<ExerciseListPage> {
               onChanged: searchExercises,
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(10, 0, 0, 10),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                DateFormat('EEEE, MMMM dd').format(widget.currentDate),
-                style: const TextStyle(fontSize: 15),
+          Visibility(
+            visible: widget.dateVisible,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(10, 0, 0, 10),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  DateFormat('EEEE, MMMM dd').format(widget.currentDate),
+                  style: const TextStyle(fontSize: 15),
+                ),
               ),
             ),
           ),

@@ -219,9 +219,6 @@ class _AddExercisePageState extends State<AddExercisePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(exercise.name),
-      ),
       body: Center(
         child: Column(
           children: [
