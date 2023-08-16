@@ -21,26 +21,26 @@ class ExercisesTabView extends StatefulWidget {
 }
 
 class _ExercisesTabViewState extends State<ExercisesTabView> {
-  late List<Widget> tabs;
-  late List<Tab> tabBar;
+  late List<Widget> tabs = [];
+  late List<Tab> tabBar = [];
 
   @override
   void initState() {
     super.initState();
 
-    // init tabs
-    tabs = [];
-    tabBar = [];
-
     // if hasAdd is true then include AddExercisePage
     widget.hasAdd
         ? tabs.add(AddExercisePage(
-            exerciseName: widget.exerciseName, currentDate: widget.currentDate))
+            exerciseName: widget.exerciseName,
+            currentDate: widget.currentDate,
+          ))
         : false; // do nothing
 
     tabs.addAll([
       const ExerciseGraphTab(),
-      const ExerciseHistoryTab(),
+      ExerciseHistoryTab(
+        exerciseName: widget.exerciseName,
+      ),
     ]);
 
     // if hasAdd is true then include tab for AddExercisePage
