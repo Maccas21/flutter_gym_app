@@ -19,9 +19,6 @@ class _MainPageState extends State<MainPage> {
     GlobalKey<NavigatorState>(),
   ];
 
-  // to access the HistoryTabState in another file
-  final historyTabKey = GlobalKey<HistoryTabState>();
-
   List<Widget> pages = [];
 
   @override
@@ -31,7 +28,7 @@ class _MainPageState extends State<MainPage> {
     pages = [
       const HomePage(),
       const GraphTab(),
-      HistoryTab(key: historyTabKey),
+      const HistoryTab(),
     ];
   }
 
@@ -56,11 +53,6 @@ class _MainPageState extends State<MainPage> {
       setState(() {
         currentPage = index;
       });
-    }
-
-    // update values on history page when bottom navigation is clicked
-    if (index == 2) {
-      historyTabKey.currentState?.redraw();
     }
   }
 

@@ -1,9 +1,11 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_gym_app/Model/database.dart';
 import 'package:flutter_gym_app/Pages/exercises_page.dart';
 import 'package:flutter_gym_app/Pages/exercises_tabview.dart';
 import 'package:flutter_gym_app/Pages/routines_page.dart';
 import 'package:flutter_gym_app/Util/exercise_day_tile.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart';
 
 class HomePage extends StatefulWidget {
@@ -15,12 +17,29 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   DayDatabase db = DayDatabase(DateTime.now());
+  late StreamSubscription<BoxEvent> hiveListener;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // listen for changes in the database and update page
+    hiveListener = Hive.box('hivebox').watch().listen((event) {
+      reinitPage();
+    });
+  }
 
   // Update database and redraw widgets
   void reinitPage() {
     setState(() {
       db.updateDatabase();
     });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    hiveListener.cancel();
   }
 
   void addDay() {

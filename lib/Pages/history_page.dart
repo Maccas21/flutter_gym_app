@@ -1,6 +1,7 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_gym_app/Model/database.dart';
-//import 'package:flutter_gym_app/Pages/exercises_tabview.dart';
+import 'package:flutter_gym_app/Pages/exercises_tabview.dart';
 import 'package:flutter_gym_app/Util/exercise_day_tile.dart';
 import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
@@ -10,46 +11,58 @@ class HistoryTab extends StatefulWidget {
   //const HistoryTab({super.key});
 
   @override
-  State<HistoryTab> createState() => HistoryTabState();
+  State<HistoryTab> createState() => _HistoryTabState();
 }
 
-class HistoryTabState extends State<HistoryTab> {
+class _HistoryTabState extends State<HistoryTab> {
   final Box box = Hive.box('hivebox');
   late List<dynamic> datesHistory; //List<DateTime>
   late List<DayDatabase> db = [];
+  late StreamSubscription<BoxEvent> hiveListener;
 
   @override
   void initState() {
     super.initState();
 
-    datesHistory = box.get('datesHistory') ?? [];
-    for (DateTime date in datesHistory) {
-      db.add(DayDatabase(date));
-    }
+    reinit();
+
+    // listen for changes in the database and update page
+    hiveListener = box.watch().listen((event) {
+      reinit();
+    });
+  }
+
+  // Update database and redraw widgets
+  void reinit() {
+    setState(() {
+      datesHistory = box.get('datesHistory') ?? [];
+      db.clear();
+      for (DateTime date in datesHistory) {
+        db.add(DayDatabase(date));
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+
+    hiveListener.cancel();
   }
 
   // Open ExercisesTabView page when day tile is clicked
   // Redraw state when poping back to history page
   void dayTileOnTap(String name, DateTime currentDate) {
-    // Navigator.of(context).push(
-    //   MaterialPageRoute(
-    //     builder: (BuildContext context) {
-    //       return ExercisesTabView(
-    //         exerciseName: name,
-    //         currentDate: currentDate,
-    //       );
-    //     },
-    //   ),
-    // ).then((value) => redraw());
-  }
-
-  // Update database and redraw widgets
-  void redraw() {
-    setState(() {
-      for (DayDatabase data in db) {
-        data.updateDatabase();
-      }
-    });
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (BuildContext context) {
+          return ExercisesTabView(
+            exerciseName: name,
+            currentDate: currentDate,
+          );
+        },
+      ),
+    ).then((value) => reinit());
   }
 
   @override

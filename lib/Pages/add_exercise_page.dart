@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_gym_app/Model/database.dart';
 import 'package:flutter_gym_app/Model/exercises.dart';
@@ -5,7 +6,7 @@ import 'package:flutter_gym_app/Util/distance_time_input.dart';
 import 'package:flutter_gym_app/Util/tile_type_helper.dart';
 import 'package:flutter_gym_app/Util/time_input.dart';
 import 'package:flutter_gym_app/Util/weight_rep_input.dart';
-import 'package:intl/intl.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 class AddExercisePage extends StatefulWidget {
   final String exerciseName;
@@ -30,6 +31,8 @@ class _AddExercisePageState extends State<AddExercisePage> {
   TextEditingController secsController = TextEditingController();
   TextEditingController distController = TextEditingController();
 
+  late StreamSubscription<BoxEvent> hiveListener;
+
   @override
   void initState() {
     super.initState();
@@ -41,11 +44,7 @@ class _AddExercisePageState extends State<AddExercisePage> {
       return exerciseName.contains(input);
     }).first;
 
-    // initialise the database and get any current data
-    db = ExerciseDatabase(
-        exerciseName: exercise.name, currentDate: widget.currentDate);
-    activeTilesList =
-        List.filled(db.currentDayLog.sets.length, false, growable: true);
+    reintDB();
 
     weightController.text = '20';
     repsController.text = '8';
@@ -53,6 +52,21 @@ class _AddExercisePageState extends State<AddExercisePage> {
     minsController.text = '0';
     secsController.text = '0';
     distController.text = '0';
+
+    // listen for changes in the database and update page
+    hiveListener = Hive.box('hivebox').watch().listen((event) {
+      reintDB();
+    });
+  }
+
+  // Initialise the database and get any current data
+  void reintDB() {
+    setState(() {
+      db = ExerciseDatabase(
+          exerciseName: exercise.name, currentDate: widget.currentDate);
+      activeTilesList =
+          List.filled(db.currentDayLog.sets.length, false, growable: true);
+    });
   }
 
   @override
@@ -65,6 +79,8 @@ class _AddExercisePageState extends State<AddExercisePage> {
     minsController.dispose();
     secsController.dispose();
     distController.dispose();
+
+    hiveListener.cancel();
   }
 
   // Return input component based on weight/reps OR distance/time OR time
@@ -222,12 +238,11 @@ class _AddExercisePageState extends State<AddExercisePage> {
       body: Center(
         child: Column(
           children: [
-            Text(
-              DateFormat('EEEE, MMMM dd').format(widget.currentDate),
-              style: const TextStyle(fontSize: 20),
-            ),
             // Display based on exercise category
-            inputSelector(),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+              child: inputSelector(),
+            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [

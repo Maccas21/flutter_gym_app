@@ -23,7 +23,10 @@ class ExerciseDatabase {
     currentDayLog = getDayLog(currentDate);
   }
 
-  void updateDatabase() {
+  void updateIntoDatabase() {
+    exerciseLog.sort((a, b) {
+      return b.date.compareTo(a.date);
+    });
     box.put(exerciseName, exerciseLog);
     box.put(DateFormat('yMMd').format(currentDate), currentDayExercises);
 
@@ -31,6 +34,12 @@ class ExerciseDatabase {
       return b.compareTo(a);
     });
     box.put('datesHistory', datesHistory);
+  }
+
+  void updateFromDatabase() {
+    exerciseLog = box.get(exerciseName) ?? [];
+    currentDayExercises = box.get(DateFormat('yMMd').format(currentDate)) ?? [];
+    datesHistory = box.get('datesHistory') ?? [];
   }
 
   void addDayLog() {
@@ -57,7 +66,7 @@ class ExerciseDatabase {
     }
 
     //update database
-    updateDatabase();
+    updateIntoDatabase();
   }
 
   void deleteDayLog() {
@@ -80,7 +89,7 @@ class ExerciseDatabase {
     }
 
     //update database
-    updateDatabase();
+    updateIntoDatabase();
   }
 
   // get specific day from list
@@ -101,7 +110,7 @@ class ExerciseDatabase {
 
 class DayDatabase {
   DateTime currentDate;
-  List<dynamic> currentDateExercises = []; //List< of >string>
+  List<dynamic> currentDateExercises = []; //List<String>
   List<ExerciseDayLog> dayExerciseList = [];
 
   // reference to Hive box
