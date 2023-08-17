@@ -2,8 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_gym_app/Model/database.dart';
 import 'package:flutter_gym_app/Util/exercise_day_tile.dart';
-import 'package:flutter_gym_app/Util/right_history_tile.dart';
-import 'package:flutter_gym_app/Util/left_history_tile.dart';
+import 'package:flutter_gym_app/Util/exercise_history_tile.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart';
 
@@ -71,8 +70,18 @@ class _ExerciseHistoryTabState extends State<ExerciseHistoryTab> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      Expanded(flex: 1, child: LeftHistoryTile(db: db)),
-                      Expanded(flex: 1, child: RightHistoryTile(db: db)),
+                      Expanded(
+                          flex: 1,
+                          child: ExerciseHistoryTile(
+                            db: db,
+                            left: true,
+                          )),
+                      Expanded(
+                          flex: 1,
+                          child: ExerciseHistoryTile(
+                            db: db,
+                            left: false,
+                          )),
                     ],
                   ),
                   Container(
