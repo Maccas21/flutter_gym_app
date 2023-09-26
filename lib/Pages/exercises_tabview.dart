@@ -67,7 +67,10 @@ class _ExercisesTabViewState extends State<ExercisesTabView> {
           title: Text(widget.exerciseName),
           bottom: TabBar(tabs: tabBar),
         ),
-        body: TabBarView(children: tabs),
+        body: TabBarView(
+          physics: const NeverScrollableScrollPhysics(),
+          children: tabs,
+        ),
       ),
     );
   }
