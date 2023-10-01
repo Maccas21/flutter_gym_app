@@ -20,7 +20,6 @@ class AddExercisePage extends StatefulWidget {
 }
 
 class _AddExercisePageState extends State<AddExercisePage> {
-  late Exercise exercise;
   late ExerciseDatabase db;
   List<bool> activeTilesList = [];
 
@@ -37,14 +36,7 @@ class _AddExercisePageState extends State<AddExercisePage> {
   void initState() {
     super.initState();
 
-    exercise = defaultExercises.where((exerciseValue) {
-      final exerciseName = exerciseValue.name.toLowerCase();
-      final input = widget.exerciseName.toLowerCase();
-
-      return exerciseName.contains(input);
-    }).first;
-
-    reintDB();
+    reinitDB();
 
     weightController.text = '20';
     repsController.text = '8';
@@ -55,15 +47,15 @@ class _AddExercisePageState extends State<AddExercisePage> {
 
     // listen for changes in the database and update page
     hiveListener = Hive.box('hivebox').watch().listen((event) {
-      reintDB();
+      reinitDB();
     });
   }
 
   // Initialise the database and get any current data
-  void reintDB() {
+  void reinitDB() {
     setState(() {
       db = ExerciseDatabase(
-          exerciseName: exercise.name, currentDate: widget.currentDate);
+          exerciseName: widget.exerciseName, currentDate: widget.currentDate);
       activeTilesList =
           List.filled(db.currentDayLog.sets.length, false, growable: true);
     });
@@ -71,8 +63,6 @@ class _AddExercisePageState extends State<AddExercisePage> {
 
   @override
   void dispose() {
-    super.dispose();
-
     weightController.dispose();
     repsController.dispose();
     hoursController.dispose();
@@ -81,17 +71,19 @@ class _AddExercisePageState extends State<AddExercisePage> {
     distController.dispose();
 
     hiveListener.cancel();
+
+    super.dispose();
   }
 
   // Return input component based on weight/reps OR distance/time OR time
   Widget inputSelector() {
-    if (exercise.exerciseType == ExerciseType.cardio) {
+    if (db.exercise.exerciseType == ExerciseType.cardio) {
       return DistanceTimeInput(
           distController: distController,
           hoursController: hoursController,
           minsController: minsController,
           secsController: secsController);
-    } else if (exercise.exerciseType == ExerciseType.static) {
+    } else if (db.exercise.exerciseType == ExerciseType.static) {
       return TimeInput(
         hoursController: hoursController,
         minsController: minsController,
@@ -110,15 +102,19 @@ class _AddExercisePageState extends State<AddExercisePage> {
   void addSet() {
     ExerciseSet newSet = ExerciseSet();
 
-    if (exercise.exerciseType == ExerciseType.cardio) {
+    if (db.exercise.exerciseType == ExerciseType.cardio) {
       newSet.distance = int.parse(distController.text);
-      newSet.durationHours = int.parse(hoursController.text);
-      newSet.durationMins = int.parse(minsController.text);
-      newSet.durationSecs = int.parse(secsController.text);
-    } else if (exercise.exerciseType == ExerciseType.static) {
-      newSet.durationHours = int.parse(hoursController.text);
-      newSet.durationMins = int.parse(minsController.text);
-      newSet.durationSecs = int.parse(secsController.text);
+      newSet.duration = Duration(
+        hours: int.parse(hoursController.text),
+        minutes: int.parse(minsController.text),
+        seconds: int.parse(secsController.text),
+      );
+    } else if (db.exercise.exerciseType == ExerciseType.static) {
+      newSet.duration = Duration(
+        hours: int.parse(hoursController.text),
+        minutes: int.parse(minsController.text),
+        seconds: int.parse(secsController.text),
+      );
     } else {
       newSet.weight = int.parse(weightController.text);
       newSet.reps = int.parse(repsController.text);
@@ -148,15 +144,19 @@ class _AddExercisePageState extends State<AddExercisePage> {
   void updateSet(int index) {
     ExerciseSet newSet = ExerciseSet();
 
-    if (exercise.exerciseType == ExerciseType.cardio) {
+    if (db.exercise.exerciseType == ExerciseType.cardio) {
       newSet.distance = int.parse(distController.text);
-      newSet.durationHours = int.parse(hoursController.text);
-      newSet.durationMins = int.parse(minsController.text);
-      newSet.durationSecs = int.parse(secsController.text);
-    } else if (exercise.exerciseType == ExerciseType.static) {
-      newSet.durationHours = int.parse(hoursController.text);
-      newSet.durationMins = int.parse(minsController.text);
-      newSet.durationSecs = int.parse(secsController.text);
+      newSet.duration = Duration(
+        hours: int.parse(hoursController.text),
+        minutes: int.parse(minsController.text),
+        seconds: int.parse(secsController.text),
+      );
+    } else if (db.exercise.exerciseType == ExerciseType.static) {
+      newSet.duration = Duration(
+        hours: int.parse(hoursController.text),
+        minutes: int.parse(minsController.text),
+        seconds: int.parse(secsController.text),
+      );
     } else {
       newSet.weight = int.parse(weightController.text);
       newSet.reps = int.parse(repsController.text);
@@ -174,21 +174,21 @@ class _AddExercisePageState extends State<AddExercisePage> {
   // Update the input to reflect tile and change active tiles list
   void onTileSelected(int index) {
     setState(() {
-      if (exercise.exerciseType == ExerciseType.cardio) {
+      if (db.exercise.exerciseType == ExerciseType.cardio) {
         distController.text = db.currentDayLog.sets[index].distance.toString();
         hoursController.text =
-            db.currentDayLog.sets[index].durationHours.toString();
+            db.currentDayLog.sets[index].duration.inHours.toString();
         minsController.text =
-            db.currentDayLog.sets[index].durationMins.toString();
+            getMinuteDuration(db.currentDayLog.sets[index].duration).toString();
         secsController.text =
-            db.currentDayLog.sets[index].durationSecs.toString();
-      } else if (exercise.exerciseType == ExerciseType.static) {
+            getSecondDuration(db.currentDayLog.sets[index].duration).toString();
+      } else if (db.exercise.exerciseType == ExerciseType.static) {
         hoursController.text =
-            db.currentDayLog.sets[index].durationHours.toString();
+            db.currentDayLog.sets[index].duration.inHours.toString();
         minsController.text =
-            db.currentDayLog.sets[index].durationMins.toString();
+            getMinuteDuration(db.currentDayLog.sets[index].duration).toString();
         secsController.text =
-            db.currentDayLog.sets[index].durationSecs.toString();
+            getSecondDuration(db.currentDayLog.sets[index].duration).toString();
       } else {
         weightController.text = db.currentDayLog.sets[index].weight.toString();
         repsController.text = db.currentDayLog.sets[index].reps.toString();
@@ -273,7 +273,7 @@ class _AddExercisePageState extends State<AddExercisePage> {
                     return GestureDetector(
                       // Display tiles based on exercise category
                       child: TileTypeHelper(
-                        exercise: exercise,
+                        exercise: db.exercise,
                         exerciseSet: db.currentDayLog.sets[index],
                         index: index,
                         activeTile: activeTilesList[index],

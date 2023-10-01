@@ -37,7 +37,9 @@ class _ExercisesTabViewState extends State<ExercisesTabView> {
         : false; // do nothing
 
     tabs.addAll([
-      const ExerciseGraphTab(),
+      ExerciseGraphTab(
+        exerciseName: widget.exerciseName,
+      ),
       ExerciseHistoryTab(
         exerciseName: widget.exerciseName,
       ),

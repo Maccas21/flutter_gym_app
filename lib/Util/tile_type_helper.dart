@@ -28,15 +28,11 @@ class _TileTypeHelperState extends State<TileTypeHelper> {
     if (widget.exercise.exerciseType == ExerciseType.cardio) {
       String tempText = '${widget.index + 1} -' +
           ' ${widget.exerciseSet.distance} km' +
-          ' ${widget.exerciseSet.durationHours.toString().padLeft(2, '0')}:' +
-          '${widget.exerciseSet.durationMins.toString().padLeft(2, '0')}:' +
-          widget.exerciseSet.durationSecs.toString().padLeft(2, '0');
+          ' ${toStringDuration(widget.exerciseSet.duration)}';
       return Text(tempText);
     } else if (widget.exercise.exerciseType == ExerciseType.static) {
       String tempText = '${widget.index + 1} -' +
-          ' ${widget.exerciseSet.durationHours.toString().padLeft(2, '0')}:' +
-          '${widget.exerciseSet.durationMins.toString().padLeft(2, '0')}:' +
-          widget.exerciseSet.durationSecs.toString().padLeft(2, '0');
+          ' ${toStringDuration(widget.exerciseSet.duration)}';
       return Text(tempText);
     } else {
       //ExerciseType.weight

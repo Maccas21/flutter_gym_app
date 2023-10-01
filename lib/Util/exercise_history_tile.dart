@@ -15,7 +15,6 @@ class ExerciseHistoryTile extends StatefulWidget {
 }
 
 class _ExerciseHistoryTileState extends State<ExerciseHistoryTile> {
-  late ExerciseType exerciseType;
   late StreamSubscription hiveListener;
 
   int maxWeight = 0;
@@ -28,10 +27,6 @@ class _ExerciseHistoryTileState extends State<ExerciseHistoryTile> {
   void initState() {
     super.initState();
 
-    exerciseType = defaultExercises.firstWhere((element) {
-      return element.name == widget.db.exerciseName;
-    }).exerciseType;
-
     reinit();
 
     hiveListener = Hive.box('hivebox').watch().listen((event) {
@@ -40,7 +35,7 @@ class _ExerciseHistoryTileState extends State<ExerciseHistoryTile> {
   }
 
   void reinit() {
-    switch (exerciseType) {
+    switch (widget.db.exercise.exerciseType) {
       case ExerciseType.cardio:
         widget.left ? getMaxDistance() : getMaxDuration();
         break;
@@ -55,9 +50,9 @@ class _ExerciseHistoryTileState extends State<ExerciseHistoryTile> {
 
   @override
   void dispose() {
-    super.dispose();
-
     hiveListener.cancel();
+
+    super.dispose();
   }
 
   // Get highest weight from db for exercise. Also get date and rep
@@ -90,13 +85,8 @@ class _ExerciseHistoryTileState extends State<ExerciseHistoryTile> {
   void getMaxDuration() {
     for (ExerciseDayLog log in widget.db.exerciseLog) {
       for (ExerciseSet set in log.sets) {
-        Duration comparing = Duration(
-          hours: set.durationHours,
-          minutes: set.durationMins,
-          seconds: set.durationSecs,
-        );
-        if (maxDuration < comparing) {
-          maxDuration = comparing;
+        if (maxDuration < set.duration) {
+          maxDuration = set.duration;
           maxDistance = set.distance;
           dateOfMax = log.date;
         }
@@ -110,11 +100,7 @@ class _ExerciseHistoryTileState extends State<ExerciseHistoryTile> {
       for (ExerciseSet set in log.sets) {
         if (maxDistance < set.distance) {
           maxDistance = set.distance;
-          maxDuration = Duration(
-            hours: set.durationHours,
-            minutes: set.durationMins,
-            seconds: set.durationSecs,
-          );
+          maxDuration = set.duration;
           dateOfMax = log.date;
         }
       }
@@ -123,7 +109,7 @@ class _ExerciseHistoryTileState extends State<ExerciseHistoryTile> {
 
   // Get tile based on ExerciseType
   Widget tileType() {
-    switch (exerciseType) {
+    switch (widget.db.exercise.exerciseType) {
       case ExerciseType.cardio:
         if (widget.left) {
           // max distance
@@ -210,16 +196,10 @@ class _ExerciseHistoryTileState extends State<ExerciseHistoryTile> {
     );
   }
 
-  String toStringDuration(Duration duration) {
-    String twoDigits(int n) => n.toString().padLeft(2, '0');
-    String twoDigitsMin = twoDigits(duration.inMinutes.remainder(60));
-    String twoDigitsSec = twoDigits(duration.inSeconds.remainder(60));
-    return '${duration.inHours}:$twoDigitsMin:$twoDigitsSec';
-  }
-
   @override
   Widget build(BuildContext context) {
-    return !widget.left && exerciseType == ExerciseType.static
+    return !widget.left &&
+            widget.db.exercise.exerciseType == ExerciseType.static
         ? const SizedBox()
         : Container(
             margin: const EdgeInsets.all(8),

@@ -10,6 +10,7 @@ void main() async {
   // register hive adapters
   Hive.registerAdapter(ExerciseDayLogAdapter());
   Hive.registerAdapter(ExerciseSetAdapter());
+  Hive.registerAdapter(DurationAdapter());
 
   // open hive box
   await Hive.openBox('hivebox');

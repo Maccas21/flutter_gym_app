@@ -87,6 +87,21 @@ const muscleCategory = {
   ],
 };
 
+String toStringDuration(Duration duration) {
+  String twoDigits(int n) => n.toString().padLeft(2, '0');
+  String twoDigitsSec = twoDigits(getSecondDuration(duration));
+  String twoDigitsMin = twoDigits(getMinuteDuration(duration));
+  return '${duration.inHours}:$twoDigitsMin:$twoDigitsSec';
+}
+
+int getSecondDuration(Duration duration) {
+  return duration.inSeconds.remainder(60);
+}
+
+int getMinuteDuration(Duration duration) {
+  return duration.inMinutes.remainder(60);
+}
+
 // Fetch content from json file
 Future<void> readJSON() async {
   // check if list is not empty
@@ -123,11 +138,7 @@ class ExerciseSet {
   @HiveField(2)
   int distance = 0;
   @HiveField(3)
-  int durationHours = 0;
-  @HiveField(4)
-  int durationMins = 0;
-  @HiveField(5)
-  int durationSecs = 0;
+  Duration duration = const Duration(seconds: 0);
 }
 
 @HiveType(typeId: 2)
@@ -136,6 +147,40 @@ class ExerciseDayLog {
   List<ExerciseSet> sets = [];
   @HiveField(1)
   DateTime date;
+  @HiveField(2)
+  int maxWeightIndex = -1;
+  @HiveField(3)
+  int maxRepsIndex = -1;
+  @HiveField(4)
+  int maxDistanceIndex = -1;
+  @HiveField(5)
+  int maxDurationIndex = -1;
 
   ExerciseDayLog({required this.date});
+}
+
+// Custom Type Adapter for Duration
+class DurationAdapter extends TypeAdapter<Duration> {
+  @override
+  final int typeId = 3;
+
+  @override
+  Duration read(BinaryReader reader) {
+    return Duration(seconds: reader.read());
+  }
+
+  @override
+  void write(BinaryWriter writer, Duration obj) {
+    writer.write(obj.inSeconds);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ExerciseDayLogAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
 }

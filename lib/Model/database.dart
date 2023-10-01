@@ -8,6 +8,7 @@ class ExerciseDatabase {
   late List<dynamic> currentDayExercises; //List<String>
   late List<dynamic> datesHistory; //List<DateTime>
   late ExerciseDayLog currentDayLog;
+  late Exercise exercise;
   String exerciseName;
   DateTime currentDate;
 
@@ -21,15 +22,24 @@ class ExerciseDatabase {
     datesHistory = box.get('datesHistory') ?? [];
 
     currentDayLog = getDayLog(currentDate);
+
+    exercise = defaultExercises.where((exerciseValue) {
+      final exerciseName = exerciseValue.name.toLowerCase();
+      final input = exerciseName.toLowerCase();
+
+      return exerciseName.contains(input);
+    }).first;
   }
 
   void updateIntoDatabase() {
+    // sorted by newer dates first
     exerciseLog.sort((a, b) {
       return b.date.compareTo(a.date);
     });
     box.put(exerciseName, exerciseLog);
     box.put(DateFormat('yMMd').format(currentDate), currentDayExercises);
 
+    // sorted by newer dates first
     datesHistory.sort((a, b) {
       return b.compareTo(a);
     });
@@ -64,6 +74,9 @@ class ExerciseDatabase {
         datesHistory.add(currentDate);
       }
     }
+
+    // update max indexes
+    setMaxIndexes();
 
     //update database
     updateIntoDatabase();
@@ -105,6 +118,82 @@ class ExerciseDatabase {
     return exerciseLog.indexWhere((dayLog) {
       return DateUtils.isSameDay(dayLog.date, queryDate);
     });
+  }
+
+  // set the indexes of the ExerciseSet with the highest value of
+  // weight, reps, duration and distance for the current day
+  void setMaxIndexes() {
+    // set to -1 if list is empty
+    if (currentDayLog.sets.isNotEmpty) {
+      // filter by exercise type
+      if (exercise.exerciseType == ExerciseType.cardio) {
+        setMaxDistanceIndex();
+        setMaxDurationIndex();
+      } else if (exercise.exerciseType == ExerciseType.static) {
+        setMaxDurationIndex();
+      } else {
+        //ExerciseType.weights
+        setMaxWeightIndex();
+        setMaxRepsIndex();
+      }
+    } else {
+      currentDayLog.maxWeightIndex = -1;
+      currentDayLog.maxRepsIndex = -1;
+      currentDayLog.maxDistanceIndex = -1;
+      currentDayLog.maxDurationIndex = -1;
+    }
+  }
+
+  // set the index for the highest weight from each set in current day
+  void setMaxWeightIndex() {
+    int maxWeight = currentDayLog.sets[0].weight;
+
+    for (int i = 1; i < currentDayLog.sets.length; i++) {
+      int compare = currentDayLog.sets[i].weight;
+      if (maxWeight < compare) {
+        maxWeight = compare;
+        currentDayLog.maxWeightIndex = i;
+      }
+    }
+  }
+
+  // set the index for the highest rep from each set in current day
+  void setMaxRepsIndex() {
+    int maxReps = currentDayLog.sets[0].reps;
+
+    for (int i = 1; i < currentDayLog.sets.length; i++) {
+      int compare = currentDayLog.sets[i].reps;
+      if (maxReps < compare) {
+        maxReps = compare;
+        currentDayLog.maxWeightIndex = i;
+      }
+    }
+  }
+
+  // set the index for the furthest distance from each set in current day
+  void setMaxDistanceIndex() {
+    int maxDistance = currentDayLog.sets[0].distance;
+
+    for (int i = 1; i < currentDayLog.sets.length; i++) {
+      int compare = currentDayLog.sets[i].distance;
+      if (maxDistance < compare) {
+        maxDistance = compare;
+        currentDayLog.maxWeightIndex = i;
+      }
+    }
+  }
+
+  // set the index for the longest duration from each set in current day
+  void setMaxDurationIndex() {
+    Duration maxDuration = currentDayLog.sets[0].duration;
+
+    for (int i = 1; i < currentDayLog.sets.length; i++) {
+      Duration compare = currentDayLog.sets[i].duration;
+      if (maxDuration < compare) {
+        maxDuration = compare;
+        currentDayLog.maxWeightIndex = i;
+      }
+    }
   }
 }
 

@@ -42,8 +42,9 @@ class _ExerciseListPageState extends State<ExerciseListPage> {
 
   @override
   void dispose() {
-    super.dispose();
     searchBarController.dispose();
+
+    super.dispose();
   }
 
   // Search list of exercises based on search bar

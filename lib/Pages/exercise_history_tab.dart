@@ -45,9 +45,9 @@ class _ExerciseHistoryTabState extends State<ExerciseHistoryTab> {
 
   @override
   void dispose() {
-    super.dispose();
-
     hiveListener.cancel();
+
+    super.dispose();
   }
 
   @override

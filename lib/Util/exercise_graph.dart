@@ -1,8 +1,27 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter_gym_app/Model/database_to_graph.dart';
+import 'package:flutter_gym_app/Model/exercises.dart';
+import 'package:hive/hive.dart';
 
 class ExerciseGraph extends StatefulWidget {
-  const ExerciseGraph({super.key});
+  final String exerciseName;
+  final ExerciseType exerciseType;
+  final String graphType;
+  final DateTime startDate;
+  final DateTime endDate;
+  final bool customDates;
+
+  const ExerciseGraph({
+    super.key,
+    required this.exerciseName,
+    required this.exerciseType,
+    required this.graphType,
+    required this.startDate,
+    required this.endDate,
+    required this.customDates,
+  });
 
   @override
   State<ExerciseGraph> createState() => _ExerciseGraphState();
@@ -20,18 +39,51 @@ class _ExerciseGraphState extends State<ExerciseGraph> {
     fontSize: 15,
   );
 
+  late DatabaseToGraph dbToGraph;
+  late StreamSubscription<BoxEvent> hiveListener;
+
+  @override
+  void initState() {
+    super.initState();
+
+    reinit();
+
+    // listen for changes in the database and update page
+    hiveListener = Hive.box('hivebox').watch().listen((event) {
+      reinit();
+    });
+  }
+
+  void reinit() {
+    dbToGraph = DatabaseToGraph(
+      exerciseName: widget.exerciseName,
+      graphType: widget.graphType,
+      exerciseType: widget.exerciseType,
+      startDate: widget.startDate,
+      endDate: widget.endDate,
+      customDates: widget.customDates,
+    );
+  }
+
+  @override
+  void dispose() {
+    hiveListener.cancel();
+
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return LineChart(
       LineChartData(
-        minX: 0,
-        maxX: 11,
+        minX: dbToGraph.minX.toDouble(),
+        maxX: dbToGraph.maxX.toDouble(),
         minY: 0,
         maxY: 6,
         // XY LABELS
         titlesData: FlTitlesData(
           show: true,
-          topTitles: const AxisTitles(),
+          //topTitles: const AxisTitles(),
           rightTitles: const AxisTitles(),
           leftTitles: AxisTitles(
             sideTitles: SideTitles(
@@ -64,19 +116,24 @@ class _ExerciseGraphState extends State<ExerciseGraph> {
                 showTitles: true,
                 getTitlesWidget: (value, meta) {
                   switch (value.toInt()) {
-                    case 2:
+                    case 1:
                       return Text(
-                        'MAR',
+                        'FEB',
                         style: textStyle,
                       );
-                    case 5:
+                    case 4:
                       return Text(
-                        'JUN',
+                        'MAY',
                         style: textStyle,
                       );
-                    case 8:
+                    case 7:
                       return Text(
-                        'SEP',
+                        'AUG',
+                        style: textStyle,
+                      );
+                    case 10:
+                      return Text(
+                        'NOV',
                         style: textStyle,
                       );
                   }
@@ -121,14 +178,14 @@ class _ExerciseGraphState extends State<ExerciseGraph> {
           LineChartBarData(
               spots: [
                 const FlSpot(0, 3),
-                const FlSpot(2.6, 2),
-                const FlSpot(4.9, 5),
-                const FlSpot(6.8, 2.5),
-                const FlSpot(8, 4),
-                const FlSpot(9.5, 3),
-                const FlSpot(11, 4),
+                const FlSpot(4.6, 2),
+                const FlSpot(8.9, 5),
+                const FlSpot(12.8, 2.5),
+                const FlSpot(16, 4),
+                const FlSpot(20.5, 3),
+                const FlSpot(24, 4),
               ],
-              isCurved: true,
+              isCurved: false,
               gradient: LinearGradient(
                 colors: gradientColors,
               ),
@@ -158,8 +215,8 @@ class _ExerciseGraphState extends State<ExerciseGraph> {
             return spotIndexes.map((spotIndex) {
               return TouchedSpotIndicatorData(
                 // LINE UNDER POINT
-                const FlLine(
-                  color: Colors.cyanAccent,
+                FlLine(
+                  color: gradientColors[1],
                   strokeWidth: 1,
                 ),
                 // DOT POINT

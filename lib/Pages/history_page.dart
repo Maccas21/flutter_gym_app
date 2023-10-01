@@ -45,9 +45,9 @@ class _HistoryTabState extends State<HistoryTab> {
 
   @override
   void dispose() {
-    super.dispose();
-
     hiveListener.cancel();
+
+    super.dispose();
   }
 
   // Open ExercisesTabView page when day tile is clicked
@@ -71,48 +71,60 @@ class _HistoryTabState extends State<HistoryTab> {
       appBar: AppBar(
         title: const Text("History"),
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: Scrollbar(
-              child: ListView.builder(
-                itemCount: datesHistory.length,
-                itemBuilder: (context, datesIndex) {
-                  return Container(
-                    margin: const EdgeInsets.fromLTRB(10, 10, 10, 0),
-                    decoration: BoxDecoration(
-                      color: Colors.blueGrey.shade600,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Column(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(10, 10, 0, 10),
-                          child: Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                                DateFormat('EEEE, MMMM d, y')
-                                    .format(datesHistory[datesIndex]),
-                                style: const TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                )),
-                          ),
-                        ),
-                        DayTile(
-                          db: db[datesIndex],
-                          dayTileOnTap: dayTileOnTap,
-                        ),
-                      ],
-                    ),
-                  );
-                },
+      body: datesHistory.isEmpty
+          ? const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text(
+                'There are no recorded sets',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
+            )
+          : Column(
+              children: [
+                Expanded(
+                  child: Scrollbar(
+                    child: ListView.builder(
+                      itemCount: datesHistory.length,
+                      itemBuilder: (context, datesIndex) {
+                        return Container(
+                          margin: const EdgeInsets.fromLTRB(10, 10, 10, 0),
+                          decoration: BoxDecoration(
+                            color: Colors.blueGrey.shade600,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Column(
+                            children: [
+                              Padding(
+                                padding:
+                                    const EdgeInsets.fromLTRB(10, 10, 0, 10),
+                                child: Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                      DateFormat('EEEE, MMMM d, y')
+                                          .format(datesHistory[datesIndex]),
+                                      style: const TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      )),
+                                ),
+                              ),
+                              DayTile(
+                                db: db[datesIndex],
+                                dayTileOnTap: dayTileOnTap,
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ),
-        ],
-      ),
     );
   }
 }
