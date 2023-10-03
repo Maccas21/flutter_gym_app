@@ -24,10 +24,10 @@ class ExerciseDatabase {
     currentDayLog = getDayLog(currentDate);
 
     exercise = defaultExercises.where((exerciseValue) {
-      final exerciseName = exerciseValue.name.toLowerCase();
+      final exerciseValueName = exerciseValue.name.toLowerCase();
       final input = exerciseName.toLowerCase();
 
-      return exerciseName.contains(input);
+      return exerciseValueName.contains(input);
     }).first;
   }
 
@@ -36,6 +36,10 @@ class ExerciseDatabase {
     exerciseLog.sort((a, b) {
       return b.date.compareTo(a.date);
     });
+
+    // update max indexes
+    setMaxIndexes();
+
     box.put(exerciseName, exerciseLog);
     box.put(DateFormat('yMMd').format(currentDate), currentDayExercises);
 
@@ -55,7 +59,7 @@ class ExerciseDatabase {
   void addDayLog() {
     int index = getDayLogIndex(currentDayLog.date);
 
-    // add if not already in else update
+    // add if not already in, else update
     index == -1
         ? exerciseLog.add(currentDayLog)
         : exerciseLog[index] = currentDayLog;
@@ -74,9 +78,6 @@ class ExerciseDatabase {
         datesHistory.add(currentDate);
       }
     }
-
-    // update max indexes
-    setMaxIndexes();
 
     //update database
     updateIntoDatabase();
@@ -146,9 +147,9 @@ class ExerciseDatabase {
 
   // set the index for the highest weight from each set in current day
   void setMaxWeightIndex() {
-    int maxWeight = currentDayLog.sets[0].weight;
+    int maxWeight = 0;
 
-    for (int i = 1; i < currentDayLog.sets.length; i++) {
+    for (int i = 0; i < currentDayLog.sets.length; i++) {
       int compare = currentDayLog.sets[i].weight;
       if (maxWeight < compare) {
         maxWeight = compare;
@@ -159,39 +160,39 @@ class ExerciseDatabase {
 
   // set the index for the highest rep from each set in current day
   void setMaxRepsIndex() {
-    int maxReps = currentDayLog.sets[0].reps;
+    int maxReps = 0;
 
-    for (int i = 1; i < currentDayLog.sets.length; i++) {
+    for (int i = 0; i < currentDayLog.sets.length; i++) {
       int compare = currentDayLog.sets[i].reps;
       if (maxReps < compare) {
         maxReps = compare;
-        currentDayLog.maxWeightIndex = i;
+        currentDayLog.maxRepsIndex = i;
       }
     }
   }
 
   // set the index for the furthest distance from each set in current day
   void setMaxDistanceIndex() {
-    int maxDistance = currentDayLog.sets[0].distance;
+    int maxDistance = 0;
 
-    for (int i = 1; i < currentDayLog.sets.length; i++) {
+    for (int i = 0; i < currentDayLog.sets.length; i++) {
       int compare = currentDayLog.sets[i].distance;
       if (maxDistance < compare) {
         maxDistance = compare;
-        currentDayLog.maxWeightIndex = i;
+        currentDayLog.maxDistanceIndex = i;
       }
     }
   }
 
   // set the index for the longest duration from each set in current day
   void setMaxDurationIndex() {
-    Duration maxDuration = currentDayLog.sets[0].duration;
+    Duration maxDuration = const Duration(seconds: 0);
 
-    for (int i = 1; i < currentDayLog.sets.length; i++) {
+    for (int i = 0; i < currentDayLog.sets.length; i++) {
       Duration compare = currentDayLog.sets[i].duration;
       if (maxDuration < compare) {
         maxDuration = compare;
-        currentDayLog.maxWeightIndex = i;
+        currentDayLog.maxDurationIndex = i;
       }
     }
   }

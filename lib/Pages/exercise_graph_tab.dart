@@ -21,19 +21,23 @@ class _ExerciseGraphTabState extends State<ExerciseGraphTab> {
   bool customDates = false;
 
   List<Widget> graphs = List.empty(growable: true);
+  List<bool> activeButton = List.filled(5, true);
 
   @override
   void initState() {
     super.initState();
 
     exercise = defaultExercises.where((exerciseValue) {
-      final exerciseName = exerciseValue.name.toLowerCase();
+      final exerciseValueName = exerciseValue.name.toLowerCase();
       final input = widget.exerciseName.toLowerCase();
 
-      return exerciseName.contains(input);
+      return exerciseValueName.contains(input);
     }).first;
 
     exerciseTypeSelector();
+
+    // disable first sort button
+    activeButton[0] = false;
   }
 
   // Return graph based on type
@@ -73,7 +77,8 @@ class _ExerciseGraphTabState extends State<ExerciseGraphTab> {
       graphs.add(graphSelector(exercise.exerciseType, 'Max Distance'));
       // max duration - longest duration for that day
       graphs.add(graphSelector(exercise.exerciseType, 'Max Duration'));
-      // best pace - highest min/distance value (--- EXTRA FEATURE ---)
+      // best pace - highest min/distance value
+      graphs.add(graphSelector(exercise.exerciseType, 'Best Pace'));
     } else if (exercise.exerciseType == ExerciseType.static) {
       // max duration - longest duration for that day
       graphs.add(graphSelector(exercise.exerciseType, 'Max Duration'));
@@ -104,6 +109,30 @@ class _ExerciseGraphTabState extends State<ExerciseGraphTab> {
     });
   }
 
+  // Get list of buttons to change display range
+  List<OutlinedButton> getButtons() {
+    List<OutlinedButton> returnList = List.empty(growable: true);
+    const List<int> ranges = [90, 180, 365, 0];
+    const List<String> buttonText = ['3M', '6M', '1Y', 'ALL'];
+
+    for (int i = 0; i < 4; i++) {
+      returnList.add(
+        OutlinedButton(
+          onPressed: activeButton[i]
+              ? () {
+                  changeDateRange(ranges[i]);
+                  activeButton = List.filled(5, true);
+                  activeButton[i] = false;
+                }
+              : null,
+          child: Text(buttonText[i]),
+        ),
+      );
+    }
+
+    return returnList;
+  }
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -112,30 +141,7 @@ class _ExerciseGraphTabState extends State<ExerciseGraphTab> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              ElevatedButton(
-                onPressed: () {
-                  changeDateRange(90);
-                },
-                child: const Text('3M'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  changeDateRange(180);
-                },
-                child: const Text('6M'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  changeDateRange(365);
-                },
-                child: const Text('1Y'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  changeDateRange(0);
-                },
-                child: const Text('ALL'),
-              ),
+              ...getButtons(),
             ],
           ),
           ...graphs,

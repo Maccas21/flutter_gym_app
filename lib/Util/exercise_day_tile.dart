@@ -21,10 +21,10 @@ class _ExerciseDayTileState extends State<ExerciseDayTile> {
     super.initState();
 
     exercise = defaultExercises.where((exerciseValue) {
-      final exerciseName = exerciseValue.name.toLowerCase();
+      final exerciseValueName = exerciseValue.name.toLowerCase();
       final input = widget.exerciseName.toLowerCase();
 
-      return exerciseName.contains(input);
+      return exerciseValueName.contains(input);
     }).first;
   }
 

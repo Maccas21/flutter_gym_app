@@ -102,7 +102,9 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
                 IconButton(
-                  onPressed: addDay,
+                  onPressed: DateUtils.isSameDay(db.currentDate, DateTime.now())
+                      ? null
+                      : addDay,
                   icon: const Icon(Icons.chevron_right),
                   splashRadius: 20,
                 ),

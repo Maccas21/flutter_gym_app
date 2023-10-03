@@ -76,15 +76,15 @@ class _ExerciseGraphState extends State<ExerciseGraph> {
   Widget build(BuildContext context) {
     return LineChart(
       LineChartData(
-        minX: dbToGraph.minX.toDouble(),
-        maxX: dbToGraph.maxX.toDouble(),
-        minY: 0,
-        maxY: 6,
+        minX: dbToGraph.minX,
+        maxX: dbToGraph.maxX,
+        minY: dbToGraph.minY,
+        maxY: dbToGraph.maxY,
         // XY LABELS
         titlesData: FlTitlesData(
           show: true,
           //topTitles: const AxisTitles(),
-          rightTitles: const AxisTitles(),
+          //rightTitles: const AxisTitles(),
           leftTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,
@@ -176,15 +176,7 @@ class _ExerciseGraphState extends State<ExerciseGraph> {
         // DATA POINTS
         lineBarsData: [
           LineChartBarData(
-              spots: [
-                const FlSpot(0, 3),
-                const FlSpot(4.6, 2),
-                const FlSpot(8.9, 5),
-                const FlSpot(12.8, 2.5),
-                const FlSpot(16, 4),
-                const FlSpot(20.5, 3),
-                const FlSpot(24, 4),
-              ],
+              spots: dbToGraph.dataPoints,
               isCurved: false,
               gradient: LinearGradient(
                 colors: gradientColors,
