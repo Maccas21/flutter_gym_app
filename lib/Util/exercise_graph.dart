@@ -36,7 +36,7 @@ class _ExerciseGraphState extends State<ExerciseGraph> {
   TextStyle textStyle = const TextStyle(
     color: Colors.white,
     fontWeight: FontWeight.bold,
-    fontSize: 15,
+    fontSize: 14,
   );
 
   late DatabaseToGraph dbToGraph;
@@ -62,6 +62,8 @@ class _ExerciseGraphState extends State<ExerciseGraph> {
       startDate: widget.startDate,
       endDate: widget.endDate,
       customDates: widget.customDates,
+      textStyle: textStyle,
+      touchBackgroundColour: Colors.blueGrey.shade400,
     );
   }
 
@@ -83,64 +85,10 @@ class _ExerciseGraphState extends State<ExerciseGraph> {
         // XY LABELS
         titlesData: FlTitlesData(
           show: true,
-          //topTitles: const AxisTitles(),
-          //rightTitles: const AxisTitles(),
-          leftTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              getTitlesWidget: (value, meta) {
-                switch (value.toInt()) {
-                  case 1:
-                    return Text(
-                      '10k',
-                      style: textStyle,
-                    );
-                  case 3:
-                    return Text(
-                      '30k',
-                      style: textStyle,
-                    );
-                  case 5:
-                    return Text(
-                      '50k',
-                      style: textStyle,
-                    );
-                }
-                return const Text('');
-              },
-              reservedSize: 38,
-            ),
-          ),
-          bottomTitles: AxisTitles(
-            sideTitles: SideTitles(
-                showTitles: true,
-                getTitlesWidget: (value, meta) {
-                  switch (value.toInt()) {
-                    case 1:
-                      return Text(
-                        'FEB',
-                        style: textStyle,
-                      );
-                    case 4:
-                      return Text(
-                        'MAY',
-                        style: textStyle,
-                      );
-                    case 7:
-                      return Text(
-                        'AUG',
-                        style: textStyle,
-                      );
-                    case 10:
-                      return Text(
-                        'NOV',
-                        style: textStyle,
-                      );
-                  }
-                  return const Text('');
-                },
-                reservedSize: 25),
-          ),
+          topTitles: const AxisTitles(),
+          rightTitles: const AxisTitles(),
+          leftTitles: dbToGraph.yAxisTitle,
+          bottomTitles: dbToGraph.xAxisTitle,
         ),
         // GRID LINES
         gridData: FlGridData(
@@ -225,23 +173,7 @@ class _ExerciseGraphState extends State<ExerciseGraph> {
             }).toList();
           },
           // TOUCH LABEL
-          touchTooltipData: LineTouchTooltipData(
-            tooltipBgColor: Colors.blueGrey.shade400,
-            getTooltipItems: (List<LineBarSpot> touchedSpots) {
-              return touchedSpots.map((flSpot) {
-                return LineTooltipItem(
-                  '${flSpot.x.toString()} \n',
-                  textStyle,
-                  children: [
-                    TextSpan(
-                      text: flSpot.y.toString(),
-                      style: textStyle,
-                    ),
-                  ],
-                );
-              }).toList();
-            },
-          ),
+          touchTooltipData: dbToGraph.touchLabels,
         ),
       ),
     );

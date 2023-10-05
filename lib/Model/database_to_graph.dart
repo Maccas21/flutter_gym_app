@@ -1,14 +1,24 @@
 import 'dart:math';
+import 'package:flutter/material.dart';
 import 'package:flutter_gym_app/Model/exercises.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:intl/intl.dart';
 
 class DatabaseToGraph {
   late List<dynamic> exerciseLog; //List<ExerciseDayLog>
+  List<FlSpot> dataPoints = List.empty(growable: true);
 
+  // reference to Hive box
+  final Box box = Hive.box('hivebox');
+
+  TextStyle textStyle;
+  Color touchBackgroundColour;
+
+  ExerciseType exerciseType;
   String exerciseName;
   String graphType;
-  ExerciseType exerciseType;
+
   DateTime startDate;
   DateTime endDate;
   bool customDates;
@@ -18,10 +28,9 @@ class DatabaseToGraph {
   double minY = 0;
   double maxY = 1;
 
-  List<FlSpot> dataPoints = List.empty(growable: true);
-
-  // reference to Hive box
-  final Box box = Hive.box('hivebox');
+  AxisTitles xAxisTitle = const AxisTitles();
+  AxisTitles yAxisTitle = const AxisTitles();
+  LineTouchTooltipData touchLabels = const LineTouchTooltipData();
 
   DatabaseToGraph({
     required this.exerciseName,
@@ -30,6 +39,8 @@ class DatabaseToGraph {
     required this.startDate,
     required this.endDate,
     required this.customDates,
+    this.textStyle = const TextStyle(),
+    this.touchBackgroundColour = Colors.white,
   }) {
     // initialize database;
     exerciseLog = box.get(exerciseName) ?? [];
@@ -45,9 +56,12 @@ class DatabaseToGraph {
     minY = getMinY();
     maxY = getMaxY();
 
-    // get x labels
-    // get y labels
+    // get xy labels
+    xAxisTitle = getXTitle();
+    yAxisTitle = getYTitle();
+
     // get touch point labels
+    touchLabels = getTouchLabels();
   }
 
   List<FlSpot> getSpots() {
@@ -204,7 +218,7 @@ class DatabaseToGraph {
 
     double minPoint = dataPoints.map((point) => point.y).reduce(min);
 
-    return max(minPoint - 5, 0);
+    return max(minPoint - 2, 0);
   }
 
   double getMaxY() {
@@ -214,7 +228,7 @@ class DatabaseToGraph {
 
     double maxPoint = dataPoints.map((point) => point.y).reduce(max);
 
-    return maxPoint + 5;
+    return maxPoint > 5 ? maxPoint + 2 : maxPoint;
   }
 
   // Get the absolute days between two dates
@@ -236,5 +250,101 @@ class DatabaseToGraph {
     DateTime newCompare = DateTime(compare.year, compare.month, compare.day);
 
     return newStart.isBefore(newCompare) && newEnd.isAfter(newCompare);
+  }
+
+  // Return title widget for Y axis
+  AxisTitles getXTitle() {
+    // get interval
+    double interval = ((maxX - minX) / 5).round().toDouble();
+
+    return AxisTitles(
+      sideTitles: SideTitles(
+        showTitles: true,
+        interval: 1,
+        getTitlesWidget: (value, meta) {
+          // shift values to the right
+          if (value % interval == (interval / 3).round()) {
+            return SideTitleWidget(
+              axisSide: meta.axisSide,
+              child: Text(
+                // convert date to string based on startdate
+                offsetToDateStringLabel(value.toInt()),
+                style: textStyle,
+              ),
+            );
+          }
+          return const Text('');
+        },
+        //reservedSize: 25,
+      ),
+    );
+  }
+
+  // Return formated date string based on offset from startdate
+  String offsetToDateStringLabel(int offset) {
+    return DateFormat('MMM dd')
+        .format(startDate.add(Duration(days: (offset))))
+        .toUpperCase();
+  }
+
+  // Return title widget for Y axis
+  AxisTitles getYTitle() {
+    // get interval
+    double interval = roundDouble(((maxY - minY) / 6), 1);
+
+    return AxisTitles(
+      sideTitles: SideTitles(
+        interval: 0.1,
+        showTitles: true,
+        getTitlesWidget: (value, meta) {
+          if (doubleToIntMod((value - minY), interval) == 0) {
+            return SideTitleWidget(
+              axisSide: meta.axisSide,
+              child: Text(
+                value.toStringAsFixed(maxY > 15 ? 0 : 1),
+                style: textStyle,
+              ),
+            );
+          }
+          return const Text('');
+        },
+        reservedSize: 40,
+      ),
+    );
+  }
+
+  // Return value rounded to N places
+  double roundDouble(double value, int places) {
+    double mod = pow(10, places).toDouble();
+    return ((value * mod).round().toDouble() / mod);
+  }
+
+  // Return modulus operation on doubles to account for floating point errors
+  int doubleToIntMod(double a, double b) {
+    int aToInt = (roundDouble(a, 2) * pow(10, 1)).round();
+    int bToInt = (roundDouble(b, 2) * pow(10, 1)).round();
+
+    return aToInt % bToInt;
+  }
+
+  // Return touch point labels
+  LineTouchTooltipData getTouchLabels() {
+    return LineTouchTooltipData(
+      tooltipBgColor: touchBackgroundColour,
+      getTooltipItems: (List<LineBarSpot> touchedSpots) {
+        return touchedSpots.map((flSpot) {
+          String xTouchLabel = offsetToDateStringLabel(flSpot.x.toInt());
+
+          // remove trailing zero after decimal for numbers below 10
+          String formatString = flSpot.y < 10 ? '0.0#' : '0.##';
+          String yTouchLabel = NumberFormat(formatString).format(flSpot.y);
+
+          return LineTooltipItem(
+            '$xTouchLabel \n$yTouchLabel',
+            textStyle,
+          );
+        }).toList();
+      },
+    );
   }
 }
