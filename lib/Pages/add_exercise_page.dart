@@ -22,6 +22,7 @@ class AddExercisePage extends StatefulWidget {
 class _AddExercisePageState extends State<AddExercisePage> {
   late ExerciseDatabase db;
   List<bool> activeTilesList = [];
+  bool addButtonActive = false;
 
   TextEditingController weightController = TextEditingController();
   TextEditingController repsController = TextEditingController();
@@ -44,6 +45,13 @@ class _AddExercisePageState extends State<AddExercisePage> {
     minsController.text = '0';
     secsController.text = '0';
     distController.text = '0';
+
+    weightController.addListener(addButtonListener);
+    repsController.addListener(addButtonListener);
+    hoursController.addListener(addButtonListener);
+    minsController.addListener(addButtonListener);
+    secsController.addListener(addButtonListener);
+    distController.addListener(addButtonListener);
 
     // listen for changes in the database and update page
     hiveListener = Hive.box('hivebox').watch().listen((event) {
@@ -232,6 +240,36 @@ class _AddExercisePageState extends State<AddExercisePage> {
     return activeTilesList.indexOf(true);
   }
 
+  void addButtonListener() {
+    setState(() {
+      addButtonActive = false;
+      if (db.exercise.exerciseType == ExerciseType.cardio) {
+        if (nonZeroChecker(distController.text) &&
+            (nonZeroChecker(hoursController.text) ||
+                nonZeroChecker(minsController.text) ||
+                nonZeroChecker(secsController.text))) {
+          addButtonActive = true;
+        }
+      } else if (db.exercise.exerciseType == ExerciseType.static) {
+        if (nonZeroChecker(hoursController.text) ||
+            nonZeroChecker(minsController.text) ||
+            nonZeroChecker(secsController.text)) {
+          addButtonActive = true;
+        }
+      } else {
+        // ExerciseType.weights
+        if (nonZeroChecker(weightController.text) ||
+            nonZeroChecker(repsController.text)) {
+          addButtonActive = true;
+        }
+      }
+    });
+  }
+
+  bool nonZeroChecker(String text) {
+    return text != '0' && text != '';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -249,9 +287,13 @@ class _AddExercisePageState extends State<AddExercisePage> {
                 SizedBox(
                   width: 80,
                   child: OutlinedButton(
-                    onPressed: () {
-                      hasActive() ? updateSet(getActiveIndex()) : addSet();
-                    },
+                    onPressed: addButtonActive
+                        ? () {
+                            hasActive()
+                                ? updateSet(getActiveIndex())
+                                : addSet();
+                          }
+                        : null,
                     child: Text((hasActive() ? 'Update' : 'Add')),
                   ),
                 ),

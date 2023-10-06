@@ -1,7 +1,7 @@
 import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_gym_app/Model/decimal_text_input_formatter.dart';
 
 class WeightSetInput extends StatelessWidget {
   final TextEditingController weightController;
@@ -71,12 +71,13 @@ class WeightSetInput extends StatelessWidget {
                   splashRadius: 15,
                 ),
                 SizedBox(
-                  width: 50,
+                  width: 70,
                   child: TextField(
                     controller: weightController,
                     inputFormatters: [
                       FilteringTextInputFormatter.digitsOnly,
-                      LengthLimitingTextInputFormatter(5),
+                      //DecimalTextInputFormatter(),
+                      LengthLimitingTextInputFormatter(7),
                     ],
                     decoration: const InputDecoration.collapsed(
                       hintText: '',

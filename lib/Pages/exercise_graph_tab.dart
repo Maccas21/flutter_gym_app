@@ -42,20 +42,26 @@ class _ExerciseGraphTabState extends State<ExerciseGraphTab> {
 
   // Return graph based on type
   Widget graphSelector(ExerciseType exerciseType, String graphType) {
-    return Column(
+    return Container(
       // unique key for build updates
       key: ValueKey(graphType + startDate.toString()),
-      children: [
-        Text(graphType),
-        Container(
-          height: 250,
-          margin: const EdgeInsets.all(8),
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: Colors.blueGrey,
-            borderRadius: BorderRadius.circular(12),
+      margin: const EdgeInsets.all(8),
+      padding: const EdgeInsets.fromLTRB(8, 15, 8, 10),
+      decoration: BoxDecoration(
+        color: Colors.blueGrey,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        children: [
+          Text(
+            graphType,
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-          child: ExerciseGraph(
+          const SizedBox(height: 10),
+          ExerciseGraph(
             exerciseName: widget.exerciseName,
             exerciseType: exerciseType,
             graphType: graphType,
@@ -63,8 +69,8 @@ class _ExerciseGraphTabState extends State<ExerciseGraphTab> {
             endDate: endDate,
             customDates: customDates,
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -135,18 +141,24 @@ class _ExerciseGraphTabState extends State<ExerciseGraphTab> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              ...getButtons(),
-            ],
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            ...getButtons(),
+          ],
+        ),
+        Expanded(
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                ...graphs,
+              ],
+            ),
           ),
-          ...graphs,
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

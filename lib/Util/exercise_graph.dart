@@ -76,91 +76,46 @@ class _ExerciseGraphState extends State<ExerciseGraph> {
 
   @override
   Widget build(BuildContext context) {
-    return LineChart(
-      LineChartData(
-        minX: dbToGraph.minX,
-        maxX: dbToGraph.maxX,
-        minY: dbToGraph.minY,
-        maxY: dbToGraph.maxY,
-        // XY LABELS
-        titlesData: FlTitlesData(
-          show: true,
-          topTitles: const AxisTitles(),
-          rightTitles: const AxisTitles(),
-          leftTitles: dbToGraph.yAxisTitle,
-          bottomTitles: dbToGraph.xAxisTitle,
-        ),
-        // GRID LINES
-        gridData: FlGridData(
-          drawHorizontalLine: false,
-          drawVerticalLine: false,
-          getDrawingHorizontalLine: (value) {
-            return const FlLine(
-              color: Colors.white,
-              strokeWidth: 1,
-            );
-          },
-          getDrawingVerticalLine: (value) {
-            return const FlLine(
-              color: Colors.white,
-              strokeWidth: 1,
-            );
-          },
-        ),
-        // BORDER LINES
-        borderData: FlBorderData(
-          show: true,
-          border: const Border(
-            left: BorderSide(
-              color: Colors.white,
-              width: 1,
-            ),
-            bottom: BorderSide(
-              color: Colors.white,
-              width: 1,
+    return AspectRatio(
+      aspectRatio: 16 / 9,
+      child: LineChart(
+        LineChartData(
+          minX: dbToGraph.minX,
+          maxX: dbToGraph.maxX,
+          minY: dbToGraph.minY,
+          maxY: dbToGraph.maxY,
+          // XY LABELS
+          titlesData: FlTitlesData(
+            show: true,
+            topTitles: const AxisTitles(),
+            rightTitles: const AxisTitles(),
+            leftTitles: dbToGraph.yAxisTitle,
+            bottomTitles: dbToGraph.xAxisTitle,
+          ),
+          // BORDER LINES
+          borderData: FlBorderData(
+            show: true,
+            border: const Border(
+              left: BorderSide(
+                color: Colors.white,
+              ),
+              bottom: BorderSide(
+                color: Colors.white,
+              ),
             ),
           ),
-        ),
-        // DATA POINTS
-        lineBarsData: [
-          LineChartBarData(
-              spots: dbToGraph.dataPoints,
-              isCurved: false,
-              gradient: LinearGradient(
-                colors: gradientColors,
-              ),
-              barWidth: 5,
-              // DOT POINTS
-              dotData: FlDotData(
-                show: true,
-                getDotPainter: (spot, percent, barData, index) {
-                  return FlDotCirclePainter(
-                    radius: 2,
-                    color: Colors.white,
-                    strokeWidth: 0,
-                  );
-                },
-              ),
-              belowBarData: BarAreaData(
-                  show: true,
-                  gradient: LinearGradient(
-                    colors: gradientColors
-                        .map((color) => color.withOpacity(0.3))
-                        .toList(),
-                  ))),
-        ],
-        // TOUCH POINTS AND LABELS
-        lineTouchData: LineTouchData(
-          getTouchedSpotIndicator: (barData, spotIndexes) {
-            return spotIndexes.map((spotIndex) {
-              return TouchedSpotIndicatorData(
-                // LINE UNDER POINT
-                FlLine(
-                  color: gradientColors[1],
-                  strokeWidth: 1,
+          // DATA POINTS
+          lineBarsData: [
+            LineChartBarData(
+                spots: dbToGraph.dataPoints,
+                isCurved: false,
+                gradient: LinearGradient(
+                  colors: gradientColors,
                 ),
-                // DOT POINT
-                FlDotData(
+                barWidth: 5,
+                // DOT POINTS
+                dotData: FlDotData(
+                  show: true,
                   getDotPainter: (spot, percent, barData, index) {
                     return FlDotCirclePainter(
                       radius: 2,
@@ -169,11 +124,41 @@ class _ExerciseGraphState extends State<ExerciseGraph> {
                     );
                   },
                 ),
-              );
-            }).toList();
-          },
-          // TOUCH LABEL
-          touchTooltipData: dbToGraph.touchLabels,
+                belowBarData: BarAreaData(
+                    show: true,
+                    gradient: LinearGradient(
+                      colors: gradientColors
+                          .map((color) => color.withOpacity(0.3))
+                          .toList(),
+                    ))),
+          ],
+          // TOUCH POINTS AND LABELS
+          lineTouchData: LineTouchData(
+            // TOUCH LABEL
+            touchTooltipData: dbToGraph.touchLabels,
+            // TOUCH POINTS CONFIG
+            getTouchedSpotIndicator: (barData, spotIndexes) {
+              return spotIndexes.map((spotIndex) {
+                return TouchedSpotIndicatorData(
+                  // LINE UNDER POINT
+                  FlLine(
+                    color: gradientColors[1],
+                    strokeWidth: 1,
+                  ),
+                  // ON TOUCH DOT POINT CONFIG
+                  FlDotData(
+                    getDotPainter: (spot, percent, barData, index) {
+                      return FlDotCirclePainter(
+                        radius: 2,
+                        color: Colors.white,
+                        strokeWidth: 0,
+                      );
+                    },
+                  ),
+                );
+              }).toList();
+            },
+          ),
         ),
       ),
     );

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_gym_app/Model/decimal_text_input_formatter.dart';
 import 'package:flutter_gym_app/Util/time_input.dart';
 
 class DistanceTimeInput extends StatelessWidget {
@@ -40,12 +41,13 @@ class DistanceTimeInput extends StatelessWidget {
             children: [
               const Text('Distance'),
               SizedBox(
-                width: 50,
+                width: 70,
                 child: TextField(
                   controller: distController,
                   inputFormatters: [
                     FilteringTextInputFormatter.digitsOnly,
-                    LengthLimitingTextInputFormatter(3),
+                    //DecimalTextInputFormatter(),
+                    LengthLimitingTextInputFormatter(7),
                   ],
                   decoration: const InputDecoration.collapsed(
                     hintText: '',

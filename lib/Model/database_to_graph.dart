@@ -180,6 +180,13 @@ class DatabaseToGraph {
       return getMaxXAll();
     } else {
       // differences should be 90, 180, 365
+      if (exerciseLog.isNotEmpty) {
+        // shift points to the front if not enough data points
+        if (daysBetween(exerciseLog.last.date, endDate) < difference) {
+          startDate = exerciseLog.last.date;
+          endDate = startDate.add(Duration(days: difference.toInt()));
+        }
+      }
       return difference;
     }
   }
@@ -188,7 +195,9 @@ class DatabaseToGraph {
   // return a minimum of 30 days range
   double getMaxXAll() {
     // set startDate to the earliest date in log
-    startDate = exerciseLog.last.date;
+    if (exerciseLog.isNotEmpty) {
+      startDate = exerciseLog.last.date;
+    }
 
     // check the difference between today and earliest date
     double difference = daysBetween(DateTime.now(), startDate);
