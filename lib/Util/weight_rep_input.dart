@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gym_app/Model/decimal_text_input_formatter.dart';
+import 'package:intl/intl.dart';
 
 class WeightSetInput extends StatelessWidget {
   final TextEditingController weightController;
@@ -20,8 +21,10 @@ class WeightSetInput extends StatelessWidget {
       controller.text = '1';
       return;
     }
-    if (int.parse(controller.text) < pow(10, maxDigits) - 1) {
-      controller.text = (int.parse(controller.text) + 1).toString();
+    if (double.parse(controller.text) < pow(10, maxDigits) - 1) {
+      String formatedNumber =
+          NumberFormat('0.###').format(double.parse(controller.text) + 1);
+      controller.text = formatedNumber;
     }
   }
 
@@ -33,8 +36,10 @@ class WeightSetInput extends StatelessWidget {
       controller.text = '0';
       return;
     }
-    if (int.parse(controller.text) > 0) {
-      controller.text = (int.parse(controller.text) - 1).toString();
+    if (double.parse(controller.text) > 0) {
+      String formatedNumber =
+          NumberFormat('0.###').format(double.parse(controller.text) - 1);
+      controller.text = formatedNumber;
     }
   }
 
@@ -48,6 +53,9 @@ class WeightSetInput extends StatelessWidget {
     if (controller.text == '') {
       controller.text = '0';
     }
+    String formatedNumber =
+        NumberFormat('0.###').format(double.parse(controller.text));
+    controller.text = formatedNumber;
 
     // closes keyboard
     FocusManager.instance.primaryFocus?.unfocus();
@@ -75,8 +83,7 @@ class WeightSetInput extends StatelessWidget {
                   child: TextField(
                     controller: weightController,
                     inputFormatters: [
-                      FilteringTextInputFormatter.digitsOnly,
-                      //DecimalTextInputFormatter(),
+                      DecimalTextInputFormatter(),
                       LengthLimitingTextInputFormatter(7),
                     ],
                     decoration: const InputDecoration.collapsed(

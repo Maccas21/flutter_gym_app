@@ -80,7 +80,7 @@ class DatabaseToGraph {
             exerciseType == ExerciseType.static) {
           switch (graphType) {
             case 'Max Distance':
-              int maxDayDistance =
+              double maxDayDistance =
                   dayLog.sets[dayLog.maxDistanceIndex].distance;
               spots.add(FlSpot(
                 daysBetween(startDate, dayLog.date),
@@ -113,7 +113,7 @@ class DatabaseToGraph {
         } else {
           switch (graphType) {
             case 'Heaviest Weight':
-              int maxDayWeight = dayLog.sets[dayLog.maxWeightIndex].weight;
+              double maxDayWeight = dayLog.sets[dayLog.maxWeightIndex].weight;
 
               spots.add(FlSpot(
                 daysBetween(startDate, dayLog.date),
@@ -298,19 +298,19 @@ class DatabaseToGraph {
 
   // Return title widget for Y axis
   AxisTitles getYTitle() {
-    // get interval
-    double interval = roundDouble(((maxY - minY) / 6), 1);
+    // get interval. To 3 decimal places if maxY < 1 otherwise to 1 decimal
+    double interval = roundDouble(((maxY - minY) / 6), maxY < 1 ? 3 : 1);
 
     return AxisTitles(
       sideTitles: SideTitles(
-        interval: 0.1,
+        interval: maxY < 1 ? 0.01 : 0.1,
         showTitles: true,
         getTitlesWidget: (value, meta) {
           if (doubleToIntMod((value - minY), interval) == 0) {
             return SideTitleWidget(
               axisSide: meta.axisSide,
               child: Text(
-                value.toStringAsFixed(maxY > 15 ? 0 : 1),
+                NumberFormat(maxY > 15 ? '0' : '0.0#').format(value),
                 style: textStyle,
               ),
             );
@@ -330,8 +330,8 @@ class DatabaseToGraph {
 
   // Return modulus operation on doubles to account for floating point errors
   int doubleToIntMod(double a, double b) {
-    int aToInt = (roundDouble(a, 2) * pow(10, 1)).round();
-    int bToInt = (roundDouble(b, 2) * pow(10, 1)).round();
+    int aToInt = (roundDouble(a, 2) * pow(10, 2)).round();
+    int bToInt = (roundDouble(b, 2) * pow(10, 2)).round();
 
     return aToInt % bToInt;
   }
@@ -345,7 +345,7 @@ class DatabaseToGraph {
           String xTouchLabel = offsetToDateStringLabel(flSpot.x.toInt());
 
           // remove trailing zero after decimal for numbers below 10
-          String formatString = flSpot.y < 10 ? '0.0#' : '0.##';
+          String formatString = flSpot.y < 10 ? '0.0##' : '0.###';
           String yTouchLabel = NumberFormat(formatString).format(flSpot.y);
 
           return LineTooltipItem(

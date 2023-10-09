@@ -17,10 +17,10 @@ class ExerciseHistoryTile extends StatefulWidget {
 class _ExerciseHistoryTileState extends State<ExerciseHistoryTile> {
   late StreamSubscription hiveListener;
 
-  int maxWeight = 0;
+  double maxWeight = 0;
   int maxReps = 0;
   Duration maxDuration = const Duration(seconds: 0);
-  int maxDistance = 0;
+  double maxDistance = 0;
   DateTime dateOfMax = DateTime.now();
 
   @override

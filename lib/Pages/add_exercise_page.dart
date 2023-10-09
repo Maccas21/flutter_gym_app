@@ -7,6 +7,7 @@ import 'package:flutter_gym_app/Util/tile_type_helper.dart';
 import 'package:flutter_gym_app/Util/time_input.dart';
 import 'package:flutter_gym_app/Util/weight_rep_input.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:intl/intl.dart';
 
 class AddExercisePage extends StatefulWidget {
   final String exerciseName;
@@ -46,6 +47,7 @@ class _AddExercisePageState extends State<AddExercisePage> {
     secsController.text = '0';
     distController.text = '0';
 
+    addButtonListener();
     weightController.addListener(addButtonListener);
     repsController.addListener(addButtonListener);
     hoursController.addListener(addButtonListener);
@@ -111,7 +113,7 @@ class _AddExercisePageState extends State<AddExercisePage> {
     ExerciseSet newSet = ExerciseSet();
 
     if (db.exercise.exerciseType == ExerciseType.cardio) {
-      newSet.distance = int.parse(distController.text);
+      newSet.distance = double.parse(distController.text);
       newSet.duration = Duration(
         hours: int.parse(hoursController.text),
         minutes: int.parse(minsController.text),
@@ -124,7 +126,7 @@ class _AddExercisePageState extends State<AddExercisePage> {
         seconds: int.parse(secsController.text),
       );
     } else {
-      newSet.weight = int.parse(weightController.text);
+      newSet.weight = double.parse(weightController.text);
       newSet.reps = int.parse(repsController.text);
     }
 
@@ -153,7 +155,7 @@ class _AddExercisePageState extends State<AddExercisePage> {
     ExerciseSet newSet = ExerciseSet();
 
     if (db.exercise.exerciseType == ExerciseType.cardio) {
-      newSet.distance = int.parse(distController.text);
+      newSet.distance = double.parse(distController.text);
       newSet.duration = Duration(
         hours: int.parse(hoursController.text),
         minutes: int.parse(minsController.text),
@@ -166,7 +168,7 @@ class _AddExercisePageState extends State<AddExercisePage> {
         seconds: int.parse(secsController.text),
       );
     } else {
-      newSet.weight = int.parse(weightController.text);
+      newSet.weight = double.parse(weightController.text);
       newSet.reps = int.parse(repsController.text);
     }
 
@@ -183,7 +185,9 @@ class _AddExercisePageState extends State<AddExercisePage> {
   void onTileSelected(int index) {
     setState(() {
       if (db.exercise.exerciseType == ExerciseType.cardio) {
-        distController.text = db.currentDayLog.sets[index].distance.toString();
+        String formatedDistance =
+            NumberFormat('0.###').format(db.currentDayLog.sets[index].distance);
+        distController.text = formatedDistance;
         hoursController.text =
             db.currentDayLog.sets[index].duration.inHours.toString();
         minsController.text =
@@ -198,7 +202,9 @@ class _AddExercisePageState extends State<AddExercisePage> {
         secsController.text =
             getSecondDuration(db.currentDayLog.sets[index].duration).toString();
       } else {
-        weightController.text = db.currentDayLog.sets[index].weight.toString();
+        String formatedWeight =
+            NumberFormat('0.###').format(db.currentDayLog.sets[index].weight);
+        weightController.text = formatedWeight;
         repsController.text = db.currentDayLog.sets[index].reps.toString();
       }
 

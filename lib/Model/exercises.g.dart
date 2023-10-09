@@ -17,9 +17,9 @@ class ExerciseSetAdapter extends TypeAdapter<ExerciseSet> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return ExerciseSet()
-      ..weight = fields[0] as int
+      ..weight = fields[0] as double
       ..reps = fields[1] as int
-      ..distance = fields[2] as int
+      ..distance = fields[2] as double
       ..duration = fields[3] as Duration;
   }
 

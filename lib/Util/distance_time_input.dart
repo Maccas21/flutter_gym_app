@@ -45,8 +45,7 @@ class DistanceTimeInput extends StatelessWidget {
                 child: TextField(
                   controller: distController,
                   inputFormatters: [
-                    FilteringTextInputFormatter.digitsOnly,
-                    //DecimalTextInputFormatter(),
+                    DecimalTextInputFormatter(),
                     LengthLimitingTextInputFormatter(7),
                   ],
                   decoration: const InputDecoration.collapsed(

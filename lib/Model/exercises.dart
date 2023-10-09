@@ -132,11 +132,11 @@ Future<void> readJSON() async {
 @HiveType(typeId: 1)
 class ExerciseSet {
   @HiveField(0)
-  int weight = 0;
+  double weight = 0;
   @HiveField(1)
   int reps = 0;
   @HiveField(2)
-  int distance = 0;
+  double distance = 0;
   @HiveField(3)
   Duration duration = const Duration(seconds: 0);
 }

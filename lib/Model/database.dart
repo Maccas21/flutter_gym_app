@@ -147,10 +147,10 @@ class ExerciseDatabase {
 
   // set the index for the highest weight from each set in current day
   void setMaxWeightIndex() {
-    int maxWeight = 0;
+    double maxWeight = 0;
 
     for (int i = 0; i < currentDayLog.sets.length; i++) {
-      int compare = currentDayLog.sets[i].weight;
+      double compare = currentDayLog.sets[i].weight;
       if (maxWeight < compare) {
         maxWeight = compare;
         currentDayLog.maxWeightIndex = i;
@@ -173,10 +173,10 @@ class ExerciseDatabase {
 
   // set the index for the furthest distance from each set in current day
   void setMaxDistanceIndex() {
-    int maxDistance = 0;
+    double maxDistance = 0;
 
     for (int i = 0; i < currentDayLog.sets.length; i++) {
-      int compare = currentDayLog.sets[i].distance;
+      double compare = currentDayLog.sets[i].distance;
       if (maxDistance < compare) {
         maxDistance = compare;
         currentDayLog.maxDistanceIndex = i;
