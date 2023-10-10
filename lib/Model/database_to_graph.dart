@@ -7,7 +7,7 @@ import 'package:intl/intl.dart';
 
 class DatabaseToGraph {
   late List<dynamic> exerciseLog; //List<ExerciseDayLog>
-  List<FlSpot> dataPoints = List.empty(growable: true);
+  List<FlSpot> dataPoints = [];
 
   // reference to Hive box
   final Box box = Hive.box('hivebox');
@@ -84,7 +84,7 @@ class DatabaseToGraph {
                   dayLog.sets[dayLog.maxDistanceIndex].distance;
               spots.add(FlSpot(
                 daysBetween(startDate, dayLog.date),
-                maxDayDistance.toDouble(),
+                maxDayDistance,
               ));
               break;
             case 'Max Duration':
@@ -117,15 +117,13 @@ class DatabaseToGraph {
 
               spots.add(FlSpot(
                 daysBetween(startDate, dayLog.date),
-                maxDayWeight.toDouble(),
+                maxDayWeight,
               ));
               break;
             case 'Total Volume':
               // sum of all weights in every set for day
-              double totalWeight = dayLog.sets
-                  .map((set) => set.weight)
-                  .reduce((a, b) => a + b)
-                  .toDouble();
+              double totalWeight =
+                  dayLog.sets.map((set) => set.weight).reduce((a, b) => a + b);
 
               spots.add(FlSpot(
                 daysBetween(startDate, dayLog.date),
@@ -227,7 +225,7 @@ class DatabaseToGraph {
 
     double minPoint = dataPoints.map((point) => point.y).reduce(min);
 
-    return max(minPoint - 2, 0);
+    return max(minPoint.floorToDouble() - 2, 0);
   }
 
   double getMaxY() {
@@ -237,7 +235,7 @@ class DatabaseToGraph {
 
     double maxPoint = dataPoints.map((point) => point.y).reduce(max);
 
-    return maxPoint > 5 ? maxPoint + 2 : maxPoint;
+    return maxPoint > 5 ? maxPoint.ceilToDouble() + 2 : maxPoint;
   }
 
   // Get the absolute days between two dates
@@ -298,26 +296,31 @@ class DatabaseToGraph {
 
   // Return title widget for Y axis
   AxisTitles getYTitle() {
-    // get interval. To 3 decimal places if maxY < 1 otherwise to 1 decimal
-    double interval = roundDouble(((maxY - minY) / 6), maxY < 1 ? 3 : 1);
+    // get interval. To 3 decimal places if maxY < 1 otherwise
+    // if maxY > 15 then nearest whole otherwise to 1 decimal
+    double interval =
+        roundDouble(((maxY - minY) / 6), maxY < 1 ? 3 : (maxY > 15 ? 0 : 1));
+    interval = interval == 0 ? 0.001 : interval;
 
     return AxisTitles(
       sideTitles: SideTitles(
-        interval: maxY < 1 ? 0.01 : 0.1,
+        interval: maxY < 1 ? 0.001 : 0.1,
         showTitles: true,
         getTitlesWidget: (value, meta) {
           if (doubleToIntMod((value - minY), interval) == 0) {
             return SideTitleWidget(
               axisSide: meta.axisSide,
               child: Text(
-                NumberFormat(maxY > 15 ? '0' : '0.0#').format(value),
+                // display number of decimals based on maxY
+                NumberFormat(maxY > 15 ? '0.#' : (maxY < 1 ? '0.0##' : '0.0#'))
+                    .format(value),
                 style: textStyle,
               ),
             );
           }
-          return const Text('');
+          return const SizedBox();
         },
-        reservedSize: 40,
+        reservedSize: maxY > 999 || maxY < 1 ? 45 : 40,
       ),
     );
   }
@@ -330,8 +333,8 @@ class DatabaseToGraph {
 
   // Return modulus operation on doubles to account for floating point errors
   int doubleToIntMod(double a, double b) {
-    int aToInt = (roundDouble(a, 2) * pow(10, 2)).round();
-    int bToInt = (roundDouble(b, 2) * pow(10, 2)).round();
+    int aToInt = (a * pow(10, 3)).round();
+    int bToInt = (b * pow(10, 3)).round();
 
     return aToInt % bToInt;
   }

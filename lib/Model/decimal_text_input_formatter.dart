@@ -1,12 +1,14 @@
 import 'dart:math';
 import 'package:flutter/services.dart';
 
-// Original code from website below. mofidified slightly and added comments
+// Original code from website below. modified and added comments
 // https://stackoverflow.com/questions/60390078/allow-upto-3-decimal-points-value-in-flutter-inputtexttype-number-in-flutter
 class DecimalTextInputFormatter extends TextInputFormatter {
   final int decimalRange;
+  final int digitsRange;
+  bool cursorAtEnd = false;
 
-  DecimalTextInputFormatter({this.decimalRange = 3});
+  DecimalTextInputFormatter({this.decimalRange = 3, this.digitsRange = 3});
 
   @override
   TextEditingValue formatEditUpdate(
@@ -23,24 +25,29 @@ class DecimalTextInputFormatter extends TextInputFormatter {
 
     // add zero in front if starting with decimal point
     if (nValue.startsWith('.')) {
-      nValue = '0.';
+      nValue = removeDuplicateDecimalPoint(oldValue.text, nValue);
 
-      nSelection = moveCursorToEnd(newValue.selection, nValue);
+      // check for numbers after decimal point
+      if (nValue.split('.')[1].isEmpty) {
+        nValue = '0.';
+
+        cursorAtEnd = true;
+      }
     } else if (nValue.contains('.')) {
       // checks the length after the decimal point matches decimalRange
       if (nValue.substring(nValue.indexOf('.') + 1).length > decimalRange) {
         nValue = oldValue.text;
 
-        nSelection = moveCursorToEnd(newValue.selection, nValue);
+        cursorAtEnd = true;
       } else {
-        // checks for multiple decimal points and remove the last
-        if (nValue.split('.').length > 2) {
-          List<String> split = nValue.split('.');
-          nValue = '${split[0]}.${split.getRange(1, split.length).join()}';
-
-          nSelection = moveCursorToEnd(newValue.selection, nValue);
-        }
+        nValue = removeDuplicateDecimalPoint(oldValue.text, nValue);
       }
+    }
+
+    nValue = limitDigits(oldValue.text, nValue);
+
+    if (cursorAtEnd) {
+      nSelection = moveCursorToEnd(newValue.selection, nValue);
     }
 
     return TextEditingValue(
@@ -53,5 +60,36 @@ class DecimalTextInputFormatter extends TextInputFormatter {
       baseOffset: min(text.length, text.length + 1),
       extentOffset: min(text.length, text.length + 1),
     );
+  }
+
+  // Checks for multiple decimal points and remove the last
+  String removeDuplicateDecimalPoint(String oldVal, String newVal) {
+    String returnVal = newVal;
+
+    if (newVal.split('.').length > 2) {
+      returnVal = oldVal;
+      cursorAtEnd = true;
+    }
+
+    return returnVal;
+  }
+
+  String limitDigits(String oldVal, String newVal) {
+    String returnVal = newVal;
+
+    if (newVal.contains('.')) {
+      if (newVal.split('.')[0].length > digitsRange ||
+          newVal.split('.')[1].length > decimalRange) {
+        returnVal = oldVal;
+        cursorAtEnd = true;
+      }
+    } else {
+      if (newVal.length > digitsRange) {
+        returnVal = oldVal;
+        cursorAtEnd = true;
+      }
+    }
+
+    return returnVal;
   }
 }

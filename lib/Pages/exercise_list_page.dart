@@ -49,7 +49,7 @@ class _ExerciseListPageState extends State<ExerciseListPage> {
 
   // Search list of exercises based on search bar
   void searchExercises(String query) {
-    List<Exercise> filteredMuscle = List.empty();
+    List<Exercise> filteredMuscle = [];
 
     // check if muscle category is selected
     for (var group in activeFilter.keys) {
@@ -216,6 +216,7 @@ class _ExerciseListPageState extends State<ExerciseListPage> {
           ),
           Expanded(
             child: Scrollbar(
+              interactive: true,
               child: ListView.builder(
                 itemCount: exerciseList.length,
                 itemBuilder: (context, index) {

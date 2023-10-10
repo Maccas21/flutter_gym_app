@@ -138,6 +138,7 @@ class _HomePageState extends State<HomePage> {
             ),
             Expanded(
               child: Scrollbar(
+                interactive: true,
                 child: DayTile(
                   db: db,
                   dayTileOnTap: dayTileOnTap,

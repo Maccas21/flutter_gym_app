@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gym_app/Model/decimal_text_input_formatter.dart';
 import 'package:flutter_gym_app/Util/time_input.dart';
+import 'package:intl/intl.dart';
 
 class DistanceTimeInput extends StatelessWidget {
   final TextEditingController distController;
@@ -27,6 +28,10 @@ class DistanceTimeInput extends StatelessWidget {
     if (controller.text == '') {
       controller.text = '0';
     }
+
+    String formatedNumber =
+        NumberFormat('0.###').format(double.parse(controller.text));
+    controller.text = formatedNumber;
 
     // closes keyboard
     FocusManager.instance.primaryFocus?.unfocus();

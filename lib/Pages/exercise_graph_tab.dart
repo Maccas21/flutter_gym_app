@@ -20,7 +20,7 @@ class _ExerciseGraphTabState extends State<ExerciseGraphTab> {
   DateTime endDate = DateTime.now();
   bool customDates = false;
 
-  List<Widget> graphs = List.empty(growable: true);
+  List<Widget> graphs = [];
   List<bool> activeButton = List.filled(5, true);
 
   @override
@@ -117,7 +117,7 @@ class _ExerciseGraphTabState extends State<ExerciseGraphTab> {
 
   // Get list of buttons to change display range
   List<OutlinedButton> getButtons() {
-    List<OutlinedButton> returnList = List.empty(growable: true);
+    List<OutlinedButton> returnList = [];
     const List<int> ranges = [90, 180, 365, 0];
     const List<String> buttonText = ['3M', '6M', '1Y', 'ALL'];
 
@@ -145,16 +145,12 @@ class _ExerciseGraphTabState extends State<ExerciseGraphTab> {
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            ...getButtons(),
-          ],
+          children: getButtons(),
         ),
         Expanded(
           child: SingleChildScrollView(
             child: Column(
-              children: [
-                ...graphs,
-              ],
+              children: graphs,
             ),
           ),
         ),

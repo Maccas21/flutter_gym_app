@@ -272,8 +272,13 @@ class _AddExercisePageState extends State<AddExercisePage> {
     });
   }
 
+  // Return true if string has non zero number
   bool nonZeroChecker(String text) {
-    return text != '0' && text != '';
+    double? number = double.tryParse(text);
+    if (number != null) {
+      return number != 0;
+    }
+    return false;
   }
 
   @override

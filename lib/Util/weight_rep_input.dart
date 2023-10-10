@@ -36,7 +36,7 @@ class WeightSetInput extends StatelessWidget {
       controller.text = '0';
       return;
     }
-    if (double.parse(controller.text) > 0) {
+    if (double.parse(controller.text) - 1 > 0) {
       String formatedNumber =
           NumberFormat('0.###').format(double.parse(controller.text) - 1);
       controller.text = formatedNumber;
@@ -53,6 +53,7 @@ class WeightSetInput extends StatelessWidget {
     if (controller.text == '') {
       controller.text = '0';
     }
+
     String formatedNumber =
         NumberFormat('0.###').format(double.parse(controller.text));
     controller.text = formatedNumber;
@@ -105,7 +106,7 @@ class WeightSetInput extends StatelessWidget {
                 ),
                 IconButton(
                   onPressed: () {
-                    increaseValue(weightController, 5);
+                    increaseValue(weightController, 3);
                   },
                   icon: const Icon(Icons.add),
                   splashRadius: 15,

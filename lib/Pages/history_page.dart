@@ -86,6 +86,7 @@ class _HistoryTabState extends State<HistoryTab> {
               children: [
                 Expanded(
                   child: Scrollbar(
+                    interactive: true,
                     child: ListView.builder(
                       itemCount: datesHistory.length,
                       itemBuilder: (context, datesIndex) {
